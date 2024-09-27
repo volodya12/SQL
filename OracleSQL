@@ -1,0 +1,1539 @@
+1.The Complete Oracle SQL Certification Course - Udemy
+2.The Complete Oracle SQL Bootcamp (2024) - Udemy 
+
+
+-https://www.oracletutorial.com/oracle-basics/oracle-inner-join/		>oracle syntax
+
+orclpbd = oracle pluggable database
+orcl = oracle container database 
+=====================================================================
+### SPECIAL Oracle Queries: ###
+
+https://www.techonthenet.com/oracle/sys_tables/index.php - All system tables/oracle tables 
+
+--Search for Specific Table Name and Column Name
+SELECT *
+FROM ALL_TAB_COLUMNS
+WHERE TABLE_NAME = :your_table_name
+AND COLUMN_NAME LIKE 'UPDATED_BY';
+
+--Invokes all Tables on specified Schema (pull)
+SELECT * from all_objects
+where OWNER = '<Schema Name>'
+AND object_type = 'TABLE';
+
+-Invoke all Views and Objects (pull)
+SELECT * FROM user_objects
+WHERE object_type = 'VIEW'
+
+SELECT * FROM all_tables;
+SELECT * FROM all_tab_COLUMNS;
+
+SHOW CONSTRAINTS FROM orders; 
+SELECT * FROM USER_SEQUENCES;
+SELECT * FROM ALL_SEQUENCES;
+SELECT * FROM DBA_SEQUENCES;
+
+CREATE SYNONYM emp_table				>creates Nickname table so user wont have to type full name of table
+FOR employees;
+========================================================================
+Read Query:
+
+-Count number of distinct values in University_city column from table Universities
+SELECT COUNT(DISTINCT(university_city)
+FROM universities;
+
+=======================================================================
+# ORDER OF OPERATION (SQL)
+
+1.Arithmetic (5 + 5 or Aggregate functions)
+2.Concat
+3.Comparison (><=)
+4.IS, NOT NULL, LIKE, NOT IN 
+5.BETWEEN, NOT BETWEEN
+6.NOT EQUAL TO (!=, <>)
+7.NOT operator
+8.AND operator 
+9.OR operator
+Use () to override order of operation (rules of precedence)
+
+=========================================================================
+## TIP ##
+www.cacoo.com/diagrams/		-software to create/design models for Database tables 
+
+DESC <tableName>			>gives brief description of table 
+	-SHIFT+F4
+INFORMATION <tableName>		>provides way more info
+INFO+ <tableName>			>provides even more info 
+
+*Database Objects - Schema, Tables
+Naming convention:
+-Naming containing: A-Z, a-z, 0-9, _, $, # and contain 128 characters in length 
+
+*Quote:
+Select q'[I'm using quote operator]' as Quote FROM DUAL 
+-[], {}, (), <>, * -> used as delimiter, []-commonly used
+-Select q'*It ain't mine*' FROM DUAL 
+
+The OR operator displays a record if ANY conditions listed are true. 
+The AND operator displays a record if ALL of the conditions listed are true
+-[] brackets in comments(here) means optional 
+
+* Click on Table Name, Shift+F4 - in Oracle - will display information box 
+
+---------------------------------------------------------
+and ROWNUM < 10 			>limit row numbers
+Offset 10					>start with Row 10
+FETCH NEXT 10 ROWS ONLY		>limit row number to 1
+GROUP BY - Whenever aggregate function is used MIN,MAX,COUNT,AVG - ALWAYS use GROUP BY
+FK - Foreign Key 			>usually belongs on MANY side of Table 
+Primary Key 				>prevents Duplicate records. Table may consist of single or multiple columns of PK
+
+Single Row Function = SQL function that apply to One Row at a Time
+Subqueries 					>performance wise = Slow/Flexibility = Great 
+====================================================================
+DATA TYPES (62)
+https://www.tutorialspoint.com/plsql/plsql_data_types.htm
+-fixed length = no extra spaces in the field. (ex: if length 55, but only 10 used, 45 is extra space)(fixed: what ever value inserted, no extra space created)
+
+varchar2(55)			-4000 bytes 
+char(55)				-fixed length.2000 bytes
+numeric(precision, scale)
+decimal(precision, scale)
+float
+timestamp
+INTEGER
+INT
+NUMBER(P, S)
+SMALLINT
+BOOLEAN
+DATE			-fixed length(includes Year, Month, Day, Hour, Min, Sec)(format: DD-MMM-YY)
+
+interval year to month
+	-when create table:
+		expiration_date	INTERVAL YEAR(p) TO MONTH
+	-when insert value, syntax: 
+	INTERVAL '10-2' year(p) to month > 10 is years, 2 is months 	>'expiration date'= expires in 10 years, 2 months 			> stores as +10-02
+	INTERVAL '100' MONTH(p)		  > 100 months 					>lets say column 'expiration date'= expires in 100 months 	> stores as +08-04 
+interval year to second
+interval month to day
+ROWID 
+
+p-percision - optional 
+
+# LOB - Large Object data types
+blob - binary large object 		-stores 4GB binary (images, video files)
+clob - character large object 	-stores 4GB characters (books, articles, large text)
+long/raw/long raw			-max size 2GB (not used in oracle, no more)
+=======================================================================
+Syntax: 
+
+SELECT (select subquery)
+FROM	(select subquery)
+WHERE [NOT] EXIST (select stmnt)
+WHERE Table = value 
+JOIN table, ON tbl_1.col_1 = tbl_2.col_1
+UNION/UNION ALL 
+GROUP BY
+HAVING
+ORDER BY 
+FETCH/OFFSET 
+
+INSERT				>insert one row at a time
+INSERT ALL			>insert multiple rows
+=================================================================
+Foreign Key vs Primary key:
+
+Foreign Key (https://www.cockroachlabs.com/blog/what-is-a-foreign-key/)
+
+-With FK, two Tables are connected. UPDATE and DELETE would be tricky now.
+	INSERT must be performed on both tables. 
+-column or columns that links two different tables 
+	-foreign key constraint = prevents any action from destroying link between two or more tables 
+-Foreign keys are used to link rows in two different tables such that a row can only be added or updated in table_a if the value in its foreign key column exists in the relevant column of table_b	
+-If there is FK constraint placed on ORDERS and STORE Tables, ROWS cannot be deleted from STORE because it is connected to ORDERS table. 
+	Need to first DELETE from ORDERS table. OR remove FK constraint.
+
+Primary Key
+
+-an Unique identifier of each Row or Record  
+-Table may consist of single or multiple columns of Primary key 
+---------------------------
+-By mention of REFERENCE key, FOREIGN KEY constraint is added 
+
+CREATE table orders (
+	order_id int PRIMARY KEY,
+	user_id int REFERENCE users(order_id),			>creating FK to connect 'user_id' to 'users' table,column 'order_id' 
+	product_sku REFERENCE books(product_sku)		>creating FK to connect 'product_sku' to 'books' table,column 'product_sku'
+	);
+
+SHOW CONSTRAINTS FROM orders; 						
+-------------------------
+# ON DELETE CASCADE (63)
+
+WHEN two tables are linked via FK and user specifies what happens to these two tables when UPDATE or DELETE is performed
+-Cannot drop table in table_1 cuz columns in table_1 are referenced in table_2
+-same with column^
+
+CREATE table orders (
+	order_id int PRIMARY KEY,
+	user_id int REFERENCE users(order_id) ON UPDATE CASCADE ON DELETE CASCADE,			>if UPDATE-also update in 'orders' table, if DELETE-also delete row from other table
+	product_sku REFERENCE books(product_sku) ON UPDATE CASCADE ON DELETE SET NULL		>if UPDATE-also update in 'orders' table, if DELETE is performed on 'book' table, then just set row to NULL 
+	);
+
+-ON DELETE CASCADE - if user is deleted from 'users' table, then it will automatically delete orders from 'orders' table 
+-ON DELETE SET NULL - if Book is deleted from 'books' table, then set column 'product_sku' to NULL in 'orders' table 
+
+ex:
+ALTER TABLE product DROP COLUMN supplier_id CASCADE CONSTRAINTS;		>forces drop column along with constraint fk or pk 
+
+-if record is deleted from 'product' table, then associated records from Child table table will be deleted as well.
+-but that is only the case if ON DELETE CASCASE is added to that column (supplier_id) while CREATING TABLE 
+DELETE FROM product WHERE supplier_id = 10;
+
+CREATE TABLE product
+(
+product_id	numeric(10) not null,
+supplier_id numeric(10) not null
+CONSTRAINT fk_supplier_id
+	FOREIGN KEY (supplier_id)					>fk supplier_id cuz product_id is pk
+	REFERENCE (supplier.supplier_id)			>referencing different table to connect 
+	ON DELETE CASCADE
+);
+
+-Alter CONSTRAINT if TABLE already created:
+ALTER TABLE product
+	ADD CONSTRAINTS fk_supplier_id
+	FOREIGN KEY (supplier_id)
+	REFERENCE (supplier.supplier_id)
+	ON DELETE CASCASE;
+================================================================
+# Fetch RANDOM Rows 
+
+SELECT * FROM (
+    select * from nyia."RESOURCE"
+    order by dbms_random.random)
+fetch first 1 rows only
+===============================================================
+# Single Row Function (SRF)(20)
+
+-provide results for every single row/executes every row (if 2000 rows, will execute for 2000 rows)
+-GROUP function = if 10 rows are given, returns 1 Row (it can also Combine rows)
+	
+https://beginner-sql-tutorial.com/oracle-functions.htm
+
+LENGTH(column)
+Where length(ename) = 6					-where name is 6 characters long
+substr('Hello', 2, 3)					-2nd-starting position, 3rd-number of characters to extract
+upper(), lower(), trunc(), etc
+LPAD('Day', 6, '$')						-adds padding(6-entire length, $-adds padding to the LEFT 
+TRIM('hello', 'h')						-trims/removes extra characters 
+ROUND(23.422, 2)
+TRUNC(103.3442342, 3)					-removes extra numbers. Keeps 3 numbers after decimal (103.344)
+==================================================================
+# Dates (21)
+
+systimestamp							-time/date 
+sysdate									-date
+add_months('02/15/2024', 2)				-adds 2 months to value 
+add_months(sysdate, 2)					-adds 2 months to current date 
+
+to_char(salary)							-converts column Salary to string 
+to_char(sysdate, 'month dd,yyyy')	    -converts something to a String (or 'mm-dd-yyyy')
+to_char(345, '$999.99')					-$345.00
+to_char(sysdate, 'ddth "is a good date" month, yyyy') from dual    -can add text in between
+
+to_date('string', 'format')				-convert string into Date data type 
+to_date('2012-10-01', 'yyyy-mm-dd')
+
+SELECT *, current_timestamp FROM tableName 
+SELECT *, date_format(birth_date, 'dd-MM-yyyy') FROM tableName 
+==================================================================
+# NULL/ NULLIF (24)
+
+NVL(sal, 0)								-null value-replaces null or dash with value of your choice
+NULLIF(arg1, arg2)						-display NULL if arg1 = arg2 
+NULLIF(length(name), 5)					-if char length of name equal to 5 = will null
+
+=================================================================
+# GROUP BY (26-27)
+
+-GROUP function = if 10 rows are given, returns 1 Row (it can also Combine rows)
+-HAVING - almost same as WHERE, except WHERE filters after FROM (every single row)
+		- HAVING filters only GROUPED rows 
+
+-GROUP BY - Whenever aggregate function is used MIN,MAX,COUNT,AVG - ALWAYS use GROUP BY
+		-Group functions = MIN, MAX, SUM, COUNT, AVG 
+		-Aggregate expression = MIN(value), COUNT(value)
+		
+SELECT max(sal), job, ename 		>if one or more columns present after Aggregate function (max), MUST include them in GROUP BY 
+FROM emp
+group by job, ename					>MUST include 2 columns as well (job, ename) -otherwise wont work
+HAVING count(*) = 2					>where two employees work as analyst
+ORDER BY 1
+
+SELECT max(sal) 
+FROM emp
+GROUP BY empno						>may GROUP BY column not part of SELECT clause 
+--------------------------------------------------------------------------------------
+Great Example:
+
+EX: (56-10:00m)
+-Query Highest Paid Employee per every Store 
+	Will show all columns representing Highest Paid Employee in their Store and Department
+
+SELECT * from Emp e1
+JOIN (
+	SELECT max(salary), Store_id		>inner query> gives Highest paid salary per Store  
+	FROM Emp 
+	GROUP BY Store_id ) e2
+ON e1.Store_id = e2.Store_id			>make sure Store_id matches value 1=1 (Store = Store)
+AND e1.salary = e2.salary 				>make sure each Salary matches Salary 1=1 (salary = salary)
+-----------------------------OR
+select * from emp
+where salary in (
+	select max(salary) from emp			>pull results from here first then match 'salary' with outer query 
+	group by store_id
+	)
+	
+-Gives Highest paid Salary for each Store 
+SELECT max(salary), Store_id
+FROM Emp 
+GROUP BY Store_id	
+==============================================================
+# SELECT within SELECT (subqueries)(29)
+
+-Statement inside Parenthesis () are executed first
+-Think as a Temp table. User creates Temp Table to work with using SELECT, and applies to OUTER query 
+
+SELECT * 
+FROM (SELECT * FROM emp)                            			 >its gonna SELECT whatever records from results of 2nd SELECT
+																 >Like TEMP Table, work with results from 2nd Select 
+
+SELECT * FROM dept
+WHERE deptno = (SELECT deptno FROM dept WHERE deptno = 30)		  >results are compared to 'deptno' or assigns (must return single value)
+
+SELECT *
+FROM emp
+WHERE deptno = (SELECT deptno FROM dept WHERE loc = 'CHICAGO')  		>use subquery as JOIN tables (must return single value) 
+
+SELECT job, ename, (SELECT job FROM emp WHERE job = 'PRESIDENT')		>adds ADDITIONAL COLUMN of SELECT with specific value 'PRESIDENT'
+FROM emp
+
+SELECT job, ename, (SELECT 'FUTURE CAREER' FROM DUAL)		
+FROM emp																>multiple SELECT with SELECT 
+WHERE job = (SELECT job FROM emp WHERE job = 'PRESIDENT')
+=================================================================
+
+===============================================================
+# JOIN table (30) UNION (56 @16m)
+
+RIGHT JOIN - gives all matching Data AND Data on Right side of Table 
+LEFT JOIN - gives all matching Data AND Data on Left side of Table 
+INNER JOIN- gives all matching Data (same as JOIN)
+FULL JOIN - gives ALL records (left and right)
+
+UNION - joins two tables with ALL columns. Trick: Both tables MUST have SAME AMOUNT of Columns 
+		-Filters out diplicate records 
+UNION ALL - clusters all records together (Allow Duplicates)
+			-must have SAME AMOUNT of Columns 
+
+SELECT * FROM emp
+MINUS										>subtracts records from query below
+SELECT * FROM emp WHERE job = 'Salesman';
+
+-What it ^does is, invokes All records from FIRST Select statement, and subtracts/get rid of what is filtered in SECOND Select.
+ex: FIRST Select returns 10 records, minus 1 record from SECOND Select query = returns 9 records (eliminates 'Salesman' record)
+
+--------SELF JOIN
+select a.ename name, b.ename manager from emp a
+join emp b
+on a.mgr=b.empno
+
+-joining same table (select Employee and their Manager) with different aliases
+	-emp table contains Employee name and Managers
+-Self JOIN happens only when two columns in same table, and they need to cooralate with each other 
+
+-----------NATURAL JOIN 
+Select * 
+FROM emp NATURAL JOIN dept 
+
+-if two Tables contains same Column Name (foreign key), Oracle naturally/automatically joins them together 
+-ex: emp.deptno NATURAL JOINing dept.deptno 
+	-No need to specify columns to JOIN like in INNER JOIN 
+	
+-----------USING
+SELECT * 
+FROM emp JOIN dept USING (deptno)
+
+-specify common column that would join the table. Must be exact same name in both Tables 
+-USING is same as JOIN ON - but without 'ON' and column must be same name.
+-Any JOIN clause can be used (left,right)
+
+SELECT *
+FROM emp JOIN dept USING (emp_deptno, dept_deptno)
+
+-If Columns slighly different in two Tables, Specify them.
+
+----------- EQUIJOIN vs NON EQUIJOIN (36)
+- EQUIJOIN - similar to INNER JOIN, joined in WHERE cluase
+- NON EQUIJOIN - Sometimes table cannot be join anyhow, so this clause/method is used to JOIN Salary between highest and lowest.(ex. below)
+
+*NON-EQUIJOIN:
+SELECT e.ename, e.sal, j.job_level
+FROM emp e JOIN job_grade j 
+ON e.sal BETWEEN j.highest_sal AND j.lowest_sal			>joining based on conditions where salary is BETWEEN high and low from other table
+
+*EQUIJOION:
+SELECT column_list 
+FROM table1, table2
+WHERE table1.column_name = table2.column_name; 
+
+--------------OLD syntax but feasable
+SELECT * 
+FROM emp e, dept d
+WHERE e.deptno = d.deptno 
+
+SELECT * 
+FROM emp e, dept d
+WHERE e.deptno(+) = d.deptno 			>+ means=LEFT JOIN 
+										>Syntax works in Oracle but NOT recommended
+------------------
+SELECT * 
+FROM (select * from emp) e, FULL JOIN (select * from dept) d
+WHERE e.deptno = d.deptno 
+
+==============================================================
+# Subquery and EXISTS and JOINS(33)
+
+select d.* from dept d											>'dept' table is comparing results with 'emp' table
+where EXISTS (select * from emp e where e.deptno = d.deptno)	>simulates JOIN. 
+																>Every row in Dept tbl, matching with Emp tbl using 'deptno' columns 
+																
+If tables are switched from current to 'emp' being outer select, and 'dept' being inner select, results would be different. 
+There are more rows in 'emp' table than in 'dept' table. 
+
+=================================================================
+# INSERT
+
+INSERT All (47)
+	into <tableName> values (value1, value2)	>no comma needed
+	into <tableName> values (value1, value2)
+select * from dual;								>must end with Select from DUAL
+
+-If multiple INSERTS need to be performed, must run them one at a time. With INSERT ALL, can run them all together.
+-------------------
+INSERT INTO <tableName>					>table must be created first
+SELECT * from <tableName>
+WHERE clause;
+
+-------------------
+# Insert values from other table 
+
+INSERT All
+WHEN salary <= 1500 THEN
+	into <tableName> values (fname, lname, salary, SSN)		>all these columns are from 'Emp' table 
+WHEN salary => 4500 THEN									>this statement optional but available
+	into <tableName> values (fname, lname, salary, SSN)
+	into <tableName> values (fname, lname, salary, SSN)
+select fname, lname, salary, SSN 
+FROM Emp							>from this "Emp" table, grab values and insert into <tableName>
+
+===================================================================
+DISTINCT - UNIQUE (2.47)
+-identical, distinct clause is almost obsolete
+
+SELECT DISTINCT job_id, department_id, first_name FROM emp;
+-will display distinct rows from Combination of 3 columns
+-ex: job_id, department_id-> might have identical rows BUT first_name will have different row/value- when combined, makes it one distinct ROW. 
+
+
+=================================================================
+Called: Window function (over, partition by) (38) Analytic Functions:
+
+Select sum(weight)
+over (order by brick_id)						>preceeding order (ASC) cause 'order by brick_id' is ASC- will count in ASC order(4,3,2,1)
+	sum_of_weight
+from bricks
+order by brick_id								>ASC cause 'order by brick_id' is ASC - will display order 4,3,2,1 
+
+40.
+over(order by <column> rows between unbounded preceding and current row) 	>unbounded-meaning, take all preceding rows into account/addition
+over(order by <column> range between unbounded preceding and current row) - defaults
+over(order by <column> row between 1 preceding and current row 				>procedes 1 row into account 
+over(order by <column> row between 2<so on> preceding and current row		>procedes 2 or whatever number it is into account
+----
+41.Normally you can't use WHERE with COUNT, must use HAVING. However with Window clause/Analytic Function, you can. 
+------
+42.
+Rank() - assigns to whatever Column you specify, and gives rank by row number (Not row id), Allows gaps 
+Dense_rank() - assigns to whatever Column you specify, and gives rank by row number (Not row id), No gaps allowed
+
+Lead() - gives next value 
+Lag() - gives previous value
+first_value() - gives first value 
+last_value() - gives last value 
+======================================================================
+# CREATE  TABLE (2.section 15)
+
+-Add Primary Key (46)
+CREATE TABLE Product (
+	product_id  number(5,2) not null,					>5 is total length, 2 is numbers after decimal point
+	store_id	number(5,2),							>'store_id' is Common Denominator - to connect with other tables 
+	Constraint product_PK Primary Key (product_id)		>create Constraints
+	);
+----------------------------------------------
+# RENAME COLUMN 
+
+-Be careful when renaming columns - Related Views, Triggers, Stored Procedures, Jobs may be affected by it and may FAIL/become INVALID
+-If Renaming, check all Dependent objects ^, may need to modify them too.
+-To Rename, must be owner of Table or required privileges
+
+ALTER TABLE <tableName> RENAME COLUMN <oldColumnName> TO <newColumnName>;
+----------------
+-RENAME TABLE (2 ways)
+RENAME <tableName> TO <newTableName>;
+ALTER TABLE <tableName> RENAME TO <newTableName>;
+
+-------------------------------------
+# Create Table AS Select (CTAS)
+# Create Table using Records from other table(49)
+# Create Table using SELECT from other table
+
+CREATE TABLE Employees 
+AS
+SELECT * from emp;							>grabs colums/data type from 'emp' table and inserts/create into Employees table (makes copy)
+---------------------------------
+# Copy table structure to newly created table
+
+CREATE TABLE Employees AS
+SELECT * from emp
+WHERE 1=2 						(1=2 is FALSE) >creates ONLY table with format of 'emp' but no records 
+-----------------------------------
+# Create own columns and Copy results from different table
+-only NOT NULL constraint will be copied
+-other constraints would need to be added manually to new table
+ 
+CREATE TABLE employees (name, lastname, annual_salary)
+AS Select first_name, last_name, hourly*365 FROM emp;		
+
+======================================================================
+# ALTER table (48)
+# Alter table (2.218)
+
+alter table products
+modify unit_price varchar2(50) not null;	>changing Column to different 'type' and adding constraint of 'not null' 
+											>If error, its because there are records exist that are NULL. It can't just convert.
+DELETE FROM products
+WHERE product_id = <value that is not null>;	>delete those records with NULL, then MODIFY
+
+-ALTER multiple columns:
+alter table products
+modify (unit_price varchar2(50) not null,
+		retail_price number(5,2) not null);
+
+-RENAME column
+alter table products
+RENAME column unit_price TO UnitPrice
+
+-ALTER table <tableName>
+ADD column1 varchar2(50) not null;
+or
+ADD (fax_number number(10) not null,
+	cell number number(10) not null
+	);
+	
+# Modify data type, incresing char length:
+-ALTER table <tableName>
+MODIFY column varchar(50);			-when varchar(10) used to be 10 char.
+
+# Modify multiple columns 
+-ALTER table <tableName>
+MODIFY (
+		password varchar(20) default 'abc123',		>password default specified value 
+		employee_name varchar(10) not null
+		);
+-Setting DEFAULT value for existing Column, will only affect NEW INSERTS. 
+
+# Drop Column
+ALTER table <tableName>
+drop column <columnName>;
+
+ALTER table <tableName>
+drop (column1, column2, column3);
+
+# Drop Multiple columns
+ALTER table <tableName>
+DROP (column_1, column_2...);
+
+---------------------------------------
+# SET columns as UNUSED (2.220)(64)
+
+For extremely big data with many columns, it can be tedious (decrease performance) to drop certain unused columns.
+In this case, devs set obsolete or unused columns to "UNUSED"
+-SET UNUSED - column becomes Invisible, Inaccessible. Soft of dropped column.
+-It does NOT remove data or disk space. 
+-It is done that way so later, devs could potentially DROP those column during off-peak hours in PRD
+
+ALTER table <tableName>
+SET UNUSED column <columnName> [ONLINE];
+
+ALTER table <tableName>
+SET UNUSED (enter multiple columns here);
+ 
+Later
+ALTER Table <tableName>
+DROP UNUSED COLUMNS;
+
+-ONLINE - can be used to indicate that DML operations are allowed on the table while marking columns as UnUsed.
+-TIP: When marking columns SET UNUSED, then DROPPING later, space will freed BUT cannot be used.
+	-To fix that, execute: ALTER TABLE MOVE statement - so that space can be used again.
+	
+SELECT * FROM user_unused_col_tabs;			>access unused columns 
+--------------------------------------------------
+# READ ONLY tables (2.222)
+
+-DML, DDL statements arent allowed in READ ONLY 
+-Tables that are barely touched
+-Tables on which maintenance need to be performed, and no data to be lost accidentaly. 
+-Some modification still be possible, such as Adding columns
+
+ALTER TABLE <tableName> READ ONLY;
+ALTER TABLE <tableName> READ WRITE;
+
+------------------------------------------------
+# DROP TABLE (2.224)
+
+-When dropping table, it moves to recycle bin - can be restored but no guarantees cuz Recycle bin can be full.
+
+DROP TABLE <tableName>
+DROP TABLE <tableName> [PURGE]	>optional- Purge means table will drop forever
+
+-Restore dropped table for short time (must be DBA or SYS user)
+FLASHBACK TABLE <tableName> TO BEFORE DROP 
+------------------------------------------------
+# TRUNCATE
+
+-It does NOT generate any undo information or log data - Restore/Rollback may not work
+-Auto-commit changes immediately
+-Removes Data from Table but leaves the table in tact
+
+TRUNCATE TABLE [SCHEMA_NAME].<tableName>;
+------------------------------------------------
+# COMMENTS - ADD Comments to Query 2.228
+
+-help to understand what is purpose of column/Table is
+-Comments briefly describes Table purpose (whats it for, why created- if Table Name not so obvious)
+-if organization have millions of Tables - comments help to untangle confusion
+-COMMENT cannot be dropped, instead, EDIT comment with NO TEXT
+
+COMMENT ON COLUMN  <tableName.columnName> IS '<write comment here>'		>comment on COLUMN
+COMMENT ON TABLE  <tableName.columnName> IS '<write comment here>'		>comment on TABLE 
+COMMENT ON TABLE  <tableName.columnName> IS ''							>drop comment 
+
+-Access Comment/View COMMENT
+SELECT * FROM USER_TAB_COMMENTS		>table comments 
+		 FROM USER_COL_COMMENTS		>column comments
+		 
+=====================================================================
+MERGE (50)
+
+-Merge is good when INSERT is not working because record already exist 
+
+-When c.customer_id in Existing_Customer table is MATCHED with customer_id in new_customer table, UPDATE these columns.  
+
+MERGE into existing_customer c				>insert into this table
+USING new_customer n						>from this table 
+ON c.customer_id = n.customer_id			>if IDs are mathing
+WHEN MATCHED THEN
+UPDATE SET									>if rows match, then update
+c.first_name = n.first_name
+c.last_name = n.last_name
+c.address = n.address
+c.email_addr = n.email_addr 
+DELETE WHERE c.first_name = 'John'			>statement optional 	
+WHEN NOT MATCHED THEN 						>If customer does not exist in Existing Customer table 
+INSERT (c.customer_id, c.first_name, c.last_name, c.address, c.email_addr)		>IF record does not EXIST in 'existing_customer' table then INSERT value from 'new_customer' table 
+VALUES (n.customer_id, n.first_name, n.last_name, n.address, n.email_addr)
+
+Select * from existing_customer
+=======================================================================
+SEQUENCE (52)
+
+-gives counter 
+-keeps tracks of numeric sequence for Primary Key column 
+-generates new values if INSERT is needed BUT Primary Key must be unique 
+
+CREATE SEQUENCE product_seq
+MINVALUE 1									>assigning minimum/maximum value that sequence can have
+MAXVALUE 100								>by default its bunch of 9999999999 (if left empty)
+START WITH 1								>what number sequence to start from (whatever number you want)
+INCREMENT BY 1
+CACHE 20;									>place in memory will contain amount of values specified(20), and 'Sequence' would able to invoke those values randomly.
+-NOCACHE;          							>optional, but CACHE gives more performance
+
+SELECT * FROM ALL_SEQUENCES;
+
+product_seq.NEXTVAL;						>willl retreive next value from this Sequence. Will never return same number.
+
+-To test this:
+SELECT product_seq.NEXTVAL FROM DUAL;		>prints 1
+
+Oracle uses application cluster called "Rack"- CACHE should be ON - improves performance 
+
+ALTER SEQUENCE product_seq					>Turn off CACHE 
+NOCACHE;
+
+-How to use Sequence:
+INSERT INTO Product (product_id, product_name)
+values (product_seq.NEXTVAL, 'lawn mower')
+
+==================================================================
+INDEX (54)
+
+-helps database search data much faster
+-Created for Tables, Columns that are Used/queried most Often
+-Indexes takes good amount of storage on Database
+-Dev chooses which Columns to be INDEXED (make sure they important columns, the once Queried often by users)
+- COMPUTE STATISTICS - Statistics used by Oracle OPTIMISER that helps choose best plan for execution query
+-Naming Convention is <tableName>_<columns>_idx as suffix 
+
+CREATE INDEX emp_empno_ename_idx				>'emp_idx' name of index/'emp' name of Table 
+ON emp (empno, ename)							>()are columns 
+
+CREATE UNIQUE INDEX emp_jobName_idx 		>create index which columns contains UNIQUE data (no duplicates).
+ON emp (jobName)								If Duplicates in column exist, Will NOT create index.
+---------------
+CREATE INDEX emp_empno_ename_idx				
+ON emp (empno, ename)
+COMPUTE STATISTICS;							>collects statistics about specific columns DURING Index creation into Database which improves performance 
+-------------------							Statistics then are being used by Oracle Optimizer tool- chooses fastest plan to execute query.
+-Add Statistics to existing Index: 
+ALTER INDEX emp_empno_ename_idx				
+REBUILD COMPUTE STATISTICS;
+
+----------------
+DROP INDEX <name of index>
+DROP INDEX emp_empno_ename_idx;
+======================================================================
+VIEWS/UNION/UNION ALL/MINUS (56)
+
+-View is a Named Query
+-Query that executed too often 
+
+CREATE VIEW manager_v
+AS 
+SELECT * FROM emp
+WHERE JOB = 'Manager'
+
+-Execute Views:
+SELECT * FROM manager_v
+
+-Invoke all Views and Objects
+SELECT * FROM user_objects
+WHERE object_type = 'VIEW'
+
+-Edit VIEW 
+CREATE OR REPLACE VIEW manager_v
+AS
+<alternative Query>
+
+DROP VIEW <viewname>
+
+--------------------------
+MINUS
+
+SELECT * from emp
+MINUS										>will join tables and MINUS row with job=SALESMAN 
+SELECT * from emp WHERE job = 'SALESMAN'
+	
+======================================================================
+OFFSET and FETCH (59) Limit to rows 
+
+OFFSET 5					>number of rows to skip before the row limiting starts
+FETCH NEXT 10 ROWS ONLY		>display 10 records
+FETCH FIRST 5 PERCENT ROWS ONLY > fetches 5% of rows 
+
+EX:
+select * from emp
+fetch next 10 rows only
+----------
+select * from emp			>Skips first 2 records 
+OFFSET 2 ROWS 
+----------
+SELECT * from emp
+OFFSET 2 rows				>this exact order. OFFSET must be first, then FETCH. Skips first 2 rows
+FETCH next 10 rows only		>fetches 10 rows 
+
+# If total records is 30:
+Offset 10 			>skips first 10 rows
+Fetch 10 rows only 	>displays 10 rows only. Last 10 remains hidden 
+
+# If total recors is 30:
+Offset 30				>skips all 30 records, will NOT show anything 
+
+=====================================================================
+(ERD) Entity Relationship Diagram (60)
+
+www.cacoo.com/diagrams/		-software to create/design models for Database tables 
+
+-Diagram to design Table first before Creating one 
+
+Example:
+Pipe = One 
+Pipe with Crows foot = "One or Many" (One or More) - Customer can have One or More orders (Pipe and Crows foot)
+Crows foot = represents "Many" (More than one)
+Crows foot -- Crows foot = "Many to Many"
+Circle = Zero 
+Foreign Key is always on "Many" side of the Table (Crows foot side)
+Intermediate Table = table provided when too many coorelation between tables. 
+	ex: One Student takes many courses. You not gonna create multiple records of Student in Courses table, just because they took multiple courses.
+
+ex:
+Customer can have One or More orders (Pipe and Crows foot)
+Order can have One or More Items in shopping cart (Pipe and Crows foot)
+
+ex: Student taking courses: (3 tables)
+Students table = Student can take One or Many Courses (Pipe and Crows foot)
+Courses table = Courses can register One or Many Students (Pipe and Crows foot)		>line between Students and Courses table 
+
+Students -- Courses = also can have Many to Many (student can take many courses/courses can have many students)
+
+Courses table = Course must have One Instructor-(Pipe) (cannot have many instructors - no Crows foot)
+Instructor table = Instructor can teach Zero or More Courses (Circle and Crows foot)	>line between Courses and Instructor table 
+					-Instructors can teach Many courses (math, english, science, etc)
+
+===================================================================
+# Commit/Rollback/Savepoint (61) TCL - Transaction Control Language
+
+Commit - after execution of UPDATE/INSERT/DELETE - must COMMIT or it WONT save (Explicit Commit)
+		(Implicit Commit - DDL - CREATE/DROP/ALTER TABLE - automatic implicit commit occurs 
+		(Implicit Commit - DCL - GRANT/REVOKE priviledges - automatic implicit commit occurs 
+		
+Rollback - if wrongly executed INSERT/UPDATE/DELETE statement, ROLLBACK to revert changes.(UNDO)
+			-IF COMMIT executed, ROLLBACK will not revert changes.
+			-It takes back to LAST COMMIT (meaning:if several UPDATES/INSERTS/DELETE were performed- ROLLBACK will revert all that)
+			-It also can take back to last SAVEPOINT `
+
+Savepoint - creates Check point (COMMIT still must be done to SAVE changes)
+---------
+There are two different ROLLBACKs
+1.ROLLBACK TO <savepoint_1>
+
+	Savepoint my_savepoint;					>name your savepoint(created savepoint)
+	
+	-User can ROLLBACK to specific Savepoint 
+		-ROLLBACK TO my_savepoint;
+
+2.ROLLBACK; 								>will rollback all the way to last/recent COMMIT (not so good)
+	
+	-if any UPDATE/INSERT/D/ (and Savepoint was created) were performed between LAST COMMIT and ROLLBACK, entire change would vanish.
+	-ITS IMPORTANT to create "SAVEPOINT <my_savepoint_update_emp>" after your U/I/D statements - to Safely ROLLBACK <to recently/or specific created savepoint>
+-------------
+Example
+
+INSERT INTO emp 
+
+COMMIT;				>changes saved
+
+INSERT INTO emp
+INSERT INTO deptno 
+
+DELETE from deptno 
+
+SAVEPOINT savepoint_1;		>checkpoint created (no changes saved yet)
+
+UPDATE emp 
+
+ROLLBACK TO savepoint_1      >changes rolled back to 'savepoint_1' (UPDATE stmt was reversed)
+
+ROLLBACK;					>if this ROLLBACK without savepoint was performed- this UNDOs everything all the way back to recent COMMIT (see top)
+							>BAD PRACTICE 
+
+========================================================================
+=======================================================================
+=======================================================================
+The Complete Oracle SQL Bootcamp (2024)
+
+# INFORMATION command (35)
+
+INFORMATION employees;
+INFO employees;
+INFO+ employees;
+
+==========================================
+# 2.section 12 - JOIN (JOIN TABLES)
+
+==========================================
+# 2.section 13 - SUBQUERIES (nested queries)
+ 
+==========================================
+# 2.section 14 - SET operation (SET, UNION, UNION ALL, INTERSECT, MINUS)
+
+==========================================
+# 2.section 15 - Create Table/Alter Table
+-Naming Convention (213)
+-DDL are auto-commited
+
+CREATE TABLE toy_store
+(
+id primary key,
+toy_id number(3) 		not null 						>example
+toy_name varchar2(50) 	not null,
+toy_cost number 		not null,
+purchase_date DATE 		DEFAULT sysdate not null		>column is defaulted to sysdate(today's date) 
+);
+
+CREATE TABLE sys_user.toys_story();						>create table under specified schema
+
+================================================
+# Create Temporary Table - youtube
+
+-Global and Private temp tables
+-Global = in case of session drops, data will be deleted but not table
+-Private = in case of session drops, Entire table is deleted 
+
+select * from user_tables
+-column "temporary" is Y
+
+CREATE GLOBAL TEMPORARY TABLE table1
+(
+toy_id number primary key,
+toy_name varchar2(50),
+toy_cost number
+);
+Global table WILL exist in USER_TABLES
+--------------------------------------
+CREATE PRIVATE TEMPORARY TABLE ora$table1 
+(
+toy_id number primary key,
+toy_name varchar2(50),
+toy_cost number
+);
+Private table WILL NOT exist in USER_TABLES
+
+==========================================================
+# 2.section 17 - Flashback 
+
+-Flashback is way to restore DROPPED tables
+
+===========================================================
+# 2.section 18 - CONSTRAINTS 
+-ensure of data integrity - data is consistent
+-If no Constraint name is given, default is SYS_C
+
+NOT NULL - prevents insert of NULL value into Column
+Unique - does NOT allow duplicate values 
+Composite Unique Keys - UNIQUE constraint based on MULTIPLE columns - Only created on Table-level 
+PRIMARY Key - Uniquely identifies each row. Combination of NOT NULL and UNIQUE. ONLY one Primary Key per Table.
+FOREIGN KEY - combination of columns used to enforce relationship between Tables.(aka Referential Integrity constraint)
+ON DELETE CASCADE / ON DELETE SET NULL - deletes dependent rows in child table when related row in parent table is deleted 
+CHECK - ensures column of group of columns meets specific condition 
+CASCADE 
+Adding Constraint 
+Dropping Constraint
+Raname Constraint
+Disable Constraint
+Status of Constraint 
+Deferring Constraint 
+
+-------------------------------------
+Sample:
+-recommended: always add Constraint Name then Constraint type- will simplify life in future.
+
+CREATE TABLE <tableName>
+(
+	employee_id	number		CONSTRAINT last_name NOT NULL,			>constraint on Column level 
+	department_id number	UNIQUE	 NOT NULL						>can have multiple constraints 
+	CONSTRAINT emp_id 		NOT NULL (<columnNames effected>)		>constraint on Table level
+				<name>  	<type>		(employee_id)
+);
+-----------
+CREATE TABLE tableName(
+	employee_id numbr,
+	first_name varchar2(50),
+	last_name varchar2(50),
+	department_id number,
+	[CONSTRAINT dept_uk] UNIQUE(department_id),
+	[CONSTRAINT composite_uk] UNIQUE(employee_id, first_name, last_name)
+);
+----------
+department_id number	CONSTRAINT dept_uk UNIQUE CONSTRAINT emp_id NOT NULL		>multiple constraints with names 
+-----------
+Primary Key - Simple (column level), Composite (table level). Table can consist of single or multiple columns of PK.
+
+CREATE TABLE tableName
+(manager_id		number	CONSTRAINT PK_Manager PRIMARY KEY,			>column level constraint
+first_name		varchar2(50),
+last_name		varchar2(50),
+CONSTRAINT PK_Manager PRIMARY KEY (manager_id)						>table level constraint 
+);
+--------------------
+Foreign Key:
+-can consist of multiple columns in table of FK 
+
+CREATE TABLE managers
+(manager_id		number CONSTRAINT PK_manager PRIMARY KEY,
+first_name 		varchar2(50),
+department_id	number	CONSTRAINT mgr_dept_id_fk REFERENCES department(department_id),			>column level, references other table 'department' and its column 
+CONSTRAINT mgr_emp_fk FOREIGN KEY (manager_id) REFERENCES employee(employee_id)					>table level, must have FK phrase, same thing ^
+);
+-INSERT must be performed carefully, on both sides of table 
+------------------------
+CHECK:
+-single column can have more than one CHECK constraint
+-create at column or table level 
+
+-dept must contain specific values
+department_id	number	CHECK (department_id IN (10, 20, 30)				>column level 
+
+-consist of two CHECKS, where salary is greater than 0 and less than 100000 
+CONSTRAINT mgr_salary_check		CHECK	(salary>0 AND salary < 100000)		>table level 
+
+-multiple CHECK conditions for different columns: (salary check and email check)
+-Salary must be greater/less than AND email must be in UPPER CASE containing .COM 
+CONSTRAINT salary_check CHECK (salary>100 AND salary < 100000 AND upper(email) LIKE '%.COM')
+
+===================================================
+# 2.section 20 - Create Dictionary View/Dictionary - Objects 
+
+-They are created by Oracle Server
+	-Read-only tables that provides administrative metadata (info) about database, database objects (tables, views, functions, indexes, users, Constraints info, etc)
+	-Dictionary / USER_OBJECTS / ALL_TABLES / DBA_CONSTRAINTS / USER_TAB_COLUMNS / etc...
+
+Complete list of ALL dictionary views located in: 
+	SELECT * FROM DICTIONARY
+	WHERE table_name = 'USER_TABLES';
+If cannot find specific dictionary view:
+	SELECT * FROM DICTIONARY
+	WHERE UPPER(comments) like '%security%';
+	
+-if comments contain NULL - oracle hides it from some users 
+	-log in as SysAdmin - if still now displayed \
+	-go to SysAdmin properties> create new Database> must be connected to Container Database (database name: sys-cdb)
+			-change 'Service Name' to 'orcl' and Save
+			
+Common Dictionary Objects:
+USER_OBJECTS
+ALL_OBJECTS
+DBA_OBJECTS
+USER_TABLES
+USER_TAB_COLUMNS
+
+Prefix definition:
+USER_ prefix - includes all objects in USER's schema
+ALL_ prefix - includes all objects in USER's schema and objects that user can access in all Schema
+DBA_ prefix - all info about entire database. DBA with specific privileges can access these data.
+V$_ prefix - contain info about database performance. DBA with specific privileges can access these data.
+	-includes System Usage, Storage, Memory, Database Statistics, etc..
+===========================================
+# 2.section 19 - CREATE VIEW
+
+-Main goal of VIEW is to Present Data
+-Restricts Data Access - Adds security layer - Adds permission of who can view it 
+-VIEWS can hide data, and SELECT DATA can only be seen to special users 
+	-Admins let offshore team use it, query from specific VIEWS created for them (to hide sensitive data)
+	-Dont let them query from actual tables 
+-Another perk = If big query executes over and over - place it into VIEW, and only execute that VIEW= will get same results.
+-VIEWS can store modified data, NOT actual data, columns.
+-IF Data changes in BASE Tables, it does NOT impact VIEWS - they are data independent - would need small query/structure modification 
+-SIMPLE view does NOT contain any aggregate Functions, GROUPS, DISTINCT, etc. (simple SELECT FROM WHERE) 
+
+* SHIFT+F4 = brings up information about View - including original SELECT clause.
+* DML (INSERT/UPDATE/DELETE/ operations are NOT allowed on Complex views (View contain: GROUP, DISTINCT, ROWNUM, WITH READ ONLY, Sub/Nested Queries, some expressions
+	-NOT NULL / PRIMARY KEY columns not included / sometimes JOINS
+	-DML might get executed, but WONT impact VIEWs. - does impact,check base table: SELECT * FROM tableName;
+--------------
+
+CREATE [OR REPLACE] [FORCE] VIEW <viewName>
+[aliases for columns] AS Select clause [WHERE clause is optional ]
+[WITH CHECK OPTION [CONSTRAINT <constraintName>]]
+[WITH READ ONLY [CONSTRAINT <constraintName>]];
+
+explanation:
+[OR REPLACE]- used for modifying views
+[FORCE] - forces to create VIEW even if table dont exist or dont have privileges to access table, but when execute VIEW, throws error 
+aliases - your own columns which will represent columns in table  
+WITH CHECK OPTION - prevents any kind of DML operations on VIEW
+CONSTRAINT <constraintName> - create automatically upon WITH CHECK OPTION, generates CONSTRAINT name systematically, unless you override it
+WITH READ ONLY [CONSTRAINT <constraintName>] - Prevent any DML operation on VIEW 
+
+EX:
+CREATE VIEW emp_v90						>90 represents dept_id [optional]
+AS
+SELECT * from employee WHERE department_id = 90;
+---------
+-With Aliases
+-Number of Aliases must match number of columns
+CREATE VIEW emp_v (id, name, email) AS
+SELECT emp_id, first_name, email_address FROM employee;
+--------
+-with CHECK OPTION:
+CREATE OR REPLACE VIEW emp_v 
+AS
+SELECT * from employees
+WHERE department_id = 60
+WITH CHECK OPTION CONSTRAINT emp_dept80_chk;				>'emp_dept80_chk' name of Constraint 
+/WITH CHECK OPTION;
+---------
+-with READ ONLY:
+-cannot use check option' and read only' clause together
+CREATE OR REPLACE VIEW emp_v 
+AS
+SELECT * from employees
+WHERE department_id = 60
+WITH READ ONLY;
+
+===============================================
+# 2.section 21 - Create Sequence 
+
+===================================================
+# 2.section 22 - Synonym 
+
+-Database object created to give alternative name to another database object 
+	-its like Alias 
+-Advantage of Synonyms:
+	-hiding identity and location of related object
+		-if user dont want to share actual identity of Table, Database, Schema, they can then share only Alias (hiding actual name)
+	-Useful for abbreviating object names - ability to shorten actual names 
+	
+CREATE [OR REPLACE] [PUBLIC] SYNONYM [schema_name].synonym_name
+FOR [schema_name].tableName;
+
+ex:
+	CREATE OR REPLACE SYNONYM retail_db.dept_syn FOR departments;
+	SELECT * from dept_syn;
+	DROP SYNONYM dept_syn;
+	
+	CREATE OR REPLACE PUBLIC SYNONYM hr.users_syn FOR HR.employees;
+	-may not create because HR user do not have permission to create PUBLIC synonym
+	
+===================================================
+# 2.section 23 - Create Index/Indexes
+
+======================================================
+# CREATE TRIGGERS/EVENTS
+
+
+=========================================================
+# CTE - Common Table Expression
+
+WITH <name> (column1, column2)
+AS
+--write CTE query here
+(
+--columns used from above defined
+SELECT column1, column2
+FROM TableName
+);
+
+====================================================================
+======================================================================
+=======================================================================
+# Difference in SQL vs ORACLE:
+CREATE TABLE:
+
+Create TABLE product(
+product_id		number	not null,
+product_name	varchar(50),
+product_cost	number(5, 2),
+product_retail	number(5, 2),
+product_type	varchar(50),
+store_id		number not null,
+
+CONSTRAINT product_pk PRIMARY KEY (product_id) 			>product_pk is name of constraint
+);
+
+SQL:
+
+Create TABLE product(
+product_id		number	not null,
+product_name	varchar(50),
+PRIMARY KEY (product_id)
+)
+
+================================================================
+=================================================================
+=================================================================
+ORACLE SQL: Mastering Oracle SQL Performance Tuning
+
+#Section 2
+
+Storage Area Components
+-------------------------
+RAM - Memory (data is stored)
+Processer (Controller) - programs that coordinates/maintains RAM and Hard Disk, AND keep them in Sync
+Hard Disk - where data is stored (permanently) 
+
+# Within Storage, there are components/files contains:
+*DIRT - Data, Indext, Rollback, Temp.
+As well as: 
+*Control Files - contains:
+-Database names
+-Data/Log files
+-location
+-DB creation time/date
+-CHeck Point info 
+
+*Online Redo Log Files, contains:
+-Database Log info
+-Used in DB Recovery
+
+*Circular REDO Log process
+-when Log data is stored into "Redo Log 1" (it gets filled)
+> then stores into "Redo Log 2" (it gets filled)
+> then stores into "Redo Log 3" (it gets filled)
+> then goes back and stores in "Redo Log 1" again, 
+and repeats the cycle. - this overrides Logs in each "Redo Log"
+
+*Parameter Files - contains important Oracle data information 
+Two Parameters files that contains important info:
+-Init.ora
+-spfile.ora
+These files hold information how to start Database, necessary parameters to start an Instance
+Parameters can be modified while Database is running.
+
+*Password file
+-contains special Users who are authenticated can start/shutdown database 
+
+*Archive Redo Log Files:
+-Creates Log files only when Database running in Raw/Archive mode
+
+----------------------------
+SGA Area Components - RAM
+--------------------------
+System Global Area aka Shared Global Area 
+
+*Database Buffer Cache
+-where data is temp stored in RAM
+
+*Log Buffer Cache
+-stores data about changes in Database - DML, DDL, etc.
+
+*Shared Pool
+-contains multiple Cache libraries
+-DBA would play there for Performance Issues
+>contains Library Cache 
+	-Library Cache very important place in RAM 
+	-Library Cache stores "Execution Plan" and Parse(moves/transfers) SQL info 
+		-also PLSQL statements/such as Functions, Packages, Triggers 
+-If 'Large Pool' is too small, memory allocation for backup will fail, and memory be allocated to Shared Pool, and eventually will cause Lots of STRESS
+on Shared Pool 
+
+>Data Dictionary Cache	
+	-memory structured, caches Raw Data info thats been recently used. It validates Semantics of Parsing SQL 
+	-It contains:
+		-Account user info
+		-Data Files names
+		-Table Descriptions
+		-User Priviledges
+		-and other info
+>Result Cache
+-sometimes same query is being executed alot, so it makes sense to cache that results into Library 
+	-which improves performance 
+-Used by DBA to make query run faster 
+
+These Library components also reside in "Shared Pool" but as not important as the above.
+These are Memory objects.
+>Large Pool        -memory allocation 
+>Java Pool         -used if Oracle Java is installed and if used JVM (java virtual machine). Default size set to 24MB in Parameter file. Memory used for Java commands.
+>Stream Pool       -Oracle Enterprise edition. Manages to shared data in Distributed env. 
+-Used by backup and Recovery process RMAN (Recovery Manager process)
+
+*Oracle Background Process 
+-software programs continuously monitors varies architectural components, communicates with them and perform specific tasks. 
+Divided into two Processes:
+>User Process - Establishes connection to Oracle Instances when User Process requests connection for the first time.  
+>Backgroud Process - When Oracle instance is started up. Some process include:
+	-CKPT - Checkpoint
+	-DBWR - Database Writer
+	-LGWR - Log Writer
+	-PMON - Process Monitor
+	-SMON - System Monitor
+	-ARCn - Archive
+	
+
+
+RAC - have 1 Oracle Database and Many Oracle Instances 
+=================================================================
+# Explain Plan vs Autotrace (9)
+
+Both produces same results:
+
+Plan of Executin: 
+- Looks at COST column (lower#-> better)
+	-chooses Plan with lowest COST and executes it
+	-COST is just a number with no symbols, units
+	
+Explain Plan - Oracle thinks/predicts the way Query will be executed
+Autotrace - The Way Query actually executed 
+	-displays Statistics/Metrics for each Step performed
+	-very useful to investigate performance issue
+	-preferred method to execute
+	-CONS: must wait for query to execute before looking at Trace 
+	
+Optimizer - Create Execution Plan and uses in Query Execution processing
+	-Software or Component that used to generate Execution Plan for every Query statement 
+	-It Generates more than 1 Execution Plan and then tries to estimate which would be more efficient and executes it
+	-Execution Plan base on looking at Statistics- number of rows/size of rows/number of cpu, etc
+	-It Determines based on COST. Whichever Plan COST is lower- its picks that one 
+		-It does NOT chooses based on Execution STEPS, but rather on the COST (lower#-> better)
+	
+"Explain Plan" contains:
+-Order of Statement
+-Access Method for each table mentioned in Query
+-Join method
+-Aggregate functions used 
+-Cost of each operation
+-Estimated number of Records vs Actual number of records in operation 
+-Filter and Access Predicate information 
+-Index names used the operation
+-Parallel Query information 
+-Bind Peek variable information 
+-etc..
+	
+==============================================================================
+# View Explain Plan (10)
+
+*DBMS_XPLAN > is a Package 
+
+*EXPLAIN PLAN FOR
+<provide SQL query here and execute together>
+
+*Acronyms:
+Columns:
+E-Rows = Estimated Rows
+E-Time = Estimated Time
+A-Rows = Actual Rows 
+A-Time = Actual Time 
+Buffers - information about IO operation
+Reads - information about IO operation 
+--------------------------------------------------------------
+*Operations - statement that performs after another statement
+
+-SELECT statement
+-HASH JOIN (JOIN tables)
+-NESTED LOOPS
+-TABLE ACCESS BY INDEX ROWID (<table name>)
+-INDEX UNIQUE SCAN (<table name>)
+-TABLE ACCESS FULL (<taable name>)
+These are operations you'll see in Execution Plan/Explain Plan 
+Optimizer runs thru each of this Task/Operation and executes them 
+------------------------------------------------------
+QUIZ:
+
+*How do I know which Operator was executed first in Execution Plan:
+-The Operator with MOST Indentation will be executed FIRST 
+
+*There is NO unit in COST column of Execution Plan 
+-Its just a number. Lots of factors are considered in COST 
+	-like CPU
+	-number of read/writes
+	-Data distribution
+	-Statistics, and more 
+	
+*SET AUTOTRACE TRACEONLY
+-Will return Execution Plan and Statistics of the Query, BUT would suppress data from printing in console.
+
+*The COST of the Operator is the Summation(sum) of ALL the COST of the Operators below in the Tree + the cost of the Operator Itself
+
+-------------------------------------------------------
+SELECT * FROM TABLE (DBMS_XPLAN.DISPLAY());
+	-stores in PLAN_TABLE
+SELECT * FROM TABLE (DBMS_XPLAN.DISPLAY(NULL, NULL, 'BASIC')); ->third parameter is Format
+SELECT * FROM TABLE (DBMS_XPLAN.DISPLAY(NULL, NULL, 'TYPICAL'));
+SELECT * FROM TABLE (DBMS_XPLAN.DISPLAY(NULL, NULL, 'ALL'));
+
+Predicate Information:
+-Access = how object within table is accessed
+-Filter = display values that filter data 
+
+SELECT * FROM TABLE (DBMS_XPLAN.DISPLAY_CURSOR);
+	-most often used 
+	-stored in V$SQL
+SELECT * FROM TABLE (DBMS_XPLAN.DISPLAY_CURSOR('<sql id #>, <child number>, 'ALL')); 
+	-parameters obtained from running 'SELECT * FROM TABLE (DBMS_XPLAN.DISPLAY_CURSOR)', location: line 1
+SELECT * FROM TABLE (DBMS_XPLAN.DISPLAY_CURSOR('<sql id #>, <child number>, 'ALL IOSTATS')); 
+	-input/output stats
+SELECT * FROM TABLE (DBMS_XPLAN.DISPLAY_CURSOR('<sql id #>, <child number>, 'ALL MEMSTATS')); 
+	-display memory use
+	-OMem - estimated amount of memory needed to perform operation in memory only (aka optimal execution)
+	-1Mem - estimated amount of memory needed to perform operation 1 path in disk -write to/read from the disk only once. 
+		-Disk that is being referred is TEMP tablespace
+	-0/1/M - has various values. 
+		-if 1 in first first = optimal execution - used only memory and no temporary table space
+		-if 1 in second field = It assumes the one pass execution 
+		-if #>1 in third field = It was a multi pass execution and that number represents the number of passes.
+		
+SELECT * FROM TABLE (DBMS_XPLAN.DISPLAY_CURSOR('<sql id #>, <child number>, 'ALL ALLSTATS')); 
+	-IOSTATS + MEMSTATS
+
+SELECT /*+GATHER_PLAN_STATISTICS*/, column1 FROM SALES -> commonly used 
+	-statement used to add additional information to Query Explain Plan 
+		-Adds number of Rows processed by each Operator/User 
+		-Captures information about IO(input/output) operators
+		-SELECT /*+STATISTICS_LEVEL*/, column1 FROM SALES -> exactly same as "GATHER_PLAN_STATISTICS"-parameter needs to be ALL - set at system or session level
+
+SELECT * FROM TABLE (DBMS_XPLAN.DISPLAY_CURSOR(null, null, 'ALL ALLSTATS LAST')
+	-provides Explain Plan for recent executed Query 
+	
+=================================================================================================
+# Analyze Explain Plan (12)
+View Explain Plan
+
+=================================================================
+=================================================================
+#### SQL Server for Database Administration - datacamp.com
+
+
+information_schema - holds info about current database 
+information_schema.tables - holds tables 
+information_schema.columns - holds columns 
+
+-Query table in information schema:
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public';
+
+-Information Schema about columns:
+SELECT column_name, data_type
+FROM information_schema.columns 
+WHERE table_name = '' and table__schema = 'public';
+--------------------
+
+-Alter table - Data Type - Restriction - Not null 
+ALTER TABLE <tableName>
+ALTER COLUMN <columnName>
+SET NOT NULL;
+DROP NOT NULL;
+
+-Alter Data Type with keyword "USING":
+ALTER TABLE <tableName>
+ALTER COLUMN <columnName>
+TYPE varchar2(55)
+USING substring(columnName, 1, 20)		>strips spaces/characters, start with 1, end 20
+
+-Unique constraint	
+	-Disallow duplicate values in column 
+ALTER TABLE <tableName>
+ADD CONSTRAINT <nameOfConstraint> UNIQUE(<columnName>);
+
+-Add Column
+ALTER TABLE <tableName>
+ADD COLUMN <columnName> <datatype>;
+
+-Rename column: 
+ALTER TABLE <tableName>
+RENAME column <column1> TO <column2>;
+
+-Add primary key:
+ALTER TABLE <tableName>
+ADD CONSTRAINT <column_pk> PRIMARY KEY(columnName);
+
+
+"Serial" data type - comes from postgreSQL data type - Used as Integer to auto-increment each row 
+===================================================================
+### Design Database key concepts
+
+-Schemas = How should my data be logically organized 
+	-what Schemas need to be Created and which Tables will reside under which Schema
+-Normalization = Should my data have minimal dependency and redundancy
+	-If my data (values/rows) should be dependent upont other Tables
+	-If data allowed to have duplicate records 
+-Views = What JOINS will be done more often
+	-Which tables need to be relevant (have related columns / which columns should be dependent upon)
+-Access Control = Should all users have same level of access 
+`	-design security level / different level of access 
+	-Create Views, Stored Procedures, Indexes 
+
+## OLTP vs OLAP
+OLTP (transactions) 							OLAP (analysis)
+-Find the price of book 						Calculate books with best profit margin 
+-Update latest customer transaction				Find most loyal customers
+-Keep track of employee hours					Decide employee of the month 		
+
+-Focuses on supporting day to day operation / 	Bigger and focuses on business decision making
+
+-Purpose:support daily transaction				Report and analyze data
+-Design: application oriented					Subject-oriented 
+-Data: up-to-date/frequent updates				Consolidated/Historical
+-Size: snapshot/gigabytes						Archive/terabytes
+-Queries: simple/frequently updated 			Complex/limited updates/aggregate functions 
+-Users: thousands								Hundreds
+
+## Storing Data 
+Structured Data 								Unstructured Data
+-Follows schema									Schemaless
+-Defined data types and Relationships			Makes up moost of data in world (media, video, images, photo, logs, etc)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
