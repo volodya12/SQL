@@ -1,0 +1,1010 @@
+-- PL/SQL --
+https://www.tutorialspoint.com/plsql/plsql_variable_types.htm
+# SET SERVEROUTPUT ON;		-> turns on dbms_ouput.put_line or prints line
+username: sys
+pass: G@ther1ng
+Global Database name: orcl
+====================================================================
+# Variable Syntax:
+variable_name [CONSTANT] datatype [NOT NULL] [:= or DEFAULT value];
+nAge		  CONSTANT NUMBER(5) NOT NULL := 23;
+
+# Format:
+BEGIN
+	nSalary NUMBER(10);
+	cSSN 	CHAR(10);
+	vLNAME	VARCHAR2(10);
+	dDOB	DATE;
+	cSalary	CONSTANT NUMBER
+BEGIN
+<code here>
+or NULL
+	dbms_output.put_line('text here or variable');
+END;
+
+----------------------
+Salary 			employee.salary%TYPE;
+avgSalary		Salary%TYPE;
+maxSalary		Salary%TYPE;
+empRecord		employee%ROWTYPE;
+----------------------
+bHighPaid       BOOLEAN:= FALSE;
+raiseSalary     NUMBER(10):= 90000;
+vMessage        VARCHAR2(60):= 'value is validated';
+
+==================================================================
+https://www.oracletutorial.com/plsql-tutorial/plsql-anonymous-block/ - PL/SQL oracle tutorial 
+===============================================================
+# TIPS
+
+%TYPE 
+%ROWTYPE 
+Data Type 
+Constraint 
+Exception
+SQLCODE
+SQLERRM
+Cursor - Attributes: %FOUND | %ISOPEN | %NOTFOUND | %ROWCOUNT | %BULK_ROWCOUNT | %BULK_EXCEPTIONS |
+vMessage:= q'!The value isn't valid.!';
+===========================================================
+# TIPS:
+
+Edit>Block Selection (multiple cursors)= press Shift+arrow down
+SQL History= CTRL+arrow down/up
+Export Data= SELECT /*csv*/ or /*json*/ (SET SQLFORMAT CSV;-output all queries results to CSV/ SET SQLFORMAT;-turn off sql format output) 
+THINK - what do i want to display in Results
+
+# fixed-length = varchar2(55) - declaring string, Its right-padded with spaces to length specified (if character declares 10, there would be 45 spaces to the right)
+# variable-length = varchar2 - declaring string, No padding (no spaces take place), max length capacity is 32,767 characters
+
+# &input = is for user INPUT (ex: x:= &a)
+# % = represents build-in function (%found, %count...) 
+# q statement = used in string literal 
+	vMessage:= q'!The value isn't valid.!';
+		-use that q statement to tell oracle that everything after 'q' is text 
+		
+# message  varchar2(30):= 'That''s tutorialspoint.com!'; 
+# In PL/SQL, index starts from 1
+# EXCEPTION pre-defined (Errors): https://www.tutorialspoint.com/plsql/plsql_exceptions.htm
+# CURSOR Attributes ONLY applies to CURSORS in dbms_output.put_line('row count is'||c_customers%rowcount)=> (CURSOR = c_customers%ROWCOUNT)
+
+Assign to Variable => nAGE	NUMBER(10) NOT NULL:= 35;
+					  cnAGE	CONSTANT NUMBER(10) NOT NULL:= 35;
+Insert value into Variable => SELECT <amount of fields declared> INTO <variableName>
+	 SELECT firstName, LastName, SSN 
+	 INTO fname, lname, nSSN
+	 FROM ...
+To call the value in DBMS => dbms_output.put_line(<variableName.value>)
+		managementList.fname
+		managementList.nSSN 
+
+=, !=, IS NULL, IS NOT NULL, IN (), BETWEEN, LIKE 'v%'
+
+# ROUND(1.5 * 3.50, -2)
+# Constraint declaration - requires less memory than unconstraint
+	ex: sales number(10, 2); 	
+		name varchar2(25); 
+		
+=======================================================
+-Search for TABLE containing specific COLUMN name  
+https://stackoverflow.com/questions/4849652/find-all-tables-containing-column-with-specified-name-ms-sql-server
+
+SELECT owner, table_name, column_name 
+FROM all_tab_columns 
+WHERE column_name LIKE '%APPLICATION_ID%'
+AND OWNER IN ('EB');
+=======================================================
+INFO (15)
+BEGIN clause 
+- Access Data using SQL and Manipulate it(change it/use it)
+- Data is Available on Database Server (uses as Primary source)*
+	-SELECT ...INTO is mostly used for retreiving data 
+- Environment Data- availabile on SQL*Plus -> usually referenced in Oracle Developer Forms or Reports
+	-there are Variables that assigned to SQL*PLus environment 
+	-there are Data only available in Oracle Developer Forms or Reports that can be used.
+# Primary purpose of PLSQL is to MANIPULATE DATA 
+=========================================================
+ERROR messages:
+
+#ORA-06502: plsql: numeric or value error: character string buffer too small
+	=character size is small, need to adjust VARCHAR2 length
+	=before: VARCHAR2(10), AFTER: VARCHAR2(50)
+
+#Encountered the symbol "this number isn't valid';
+	=if you see (isn't), you missing 'q'!text!';
+===========================================================
+# DATA TYPE: (8,9)
+	-these are called 'SCALAR' types - Simple data types that holds one item.
+
+Signed = with -, +, not zero (represent gain or loss)
+Unsign = only positive number 
+
+VARCHAR2(50) 
+NUMBER(2, 5)	NUMBER(10)
+INTEGER
+INT or INT(range 1-38)
+DATE
+BOOLEAN
+UROWID 
+DECIMAL(p, s)		>decimal
+NUMERIC(p, s)		>decimal
+FLOAT				>decimal
+REAL				>decimal 
+NUMBER(2, 5) = can be INTEGER, FLOATING number, but slower performance
+	-Precision (decimal point placed) 1-38
+	-Scale (how many numbers allowed) -84 to 127
+
+	SYNONYMS to NUMBERS: (if working with variety of Databases (sql,mssql,oracle....)
+		NUMBER = dec, decimal, float, integer, int, numberic...
+		CHAR = Character, string
+		VARCHAR2 = varchar 
+BINARY_INTEGER = very large number. More efficient thatn NUMBER
+	-INTEGER = has no decimals 
+	SUB-TYPES:
+	-NATURAL - no values less than 0
+	-POSITIVE - no values allowed less than 1
+SIMPLE_INTEGER = better performance than BINARY_INTEGER 
+BINARY_FLOAT = allow decimals (allows NAN)
+BANARY_DOUBLE = best for scientific computing 
+
+CHAR = fixed length (set size), length 1 thru 32,767, space is per length assigned.
+	-takes text,numbers,float,symbols, anything
+VARCHAR2 = varying length. Space->only takes space as being occupied 
+	-takes text,numbers,float,symbols, anything 
+	-difference between CHAR and VARCHAR2 is memory (fixed or varying)
+
+ROWID = obsolete with limited works. ONLY stores physical row location in a table.
+UROWID = identifies physical or logical row in a table (universal row id)
+BOOLEAN = true/false/null (defaults to null)
+DATE = must be specific format 
+%ROWTYPE
+%TYPE
+
+ROWID/UROWID = a Unique row of a record.
+	- used efficiently with UPDATE/DELETE clause, great performance.
+	Referencing rowids in UPDATE and DELETE statements can sometimes lead to 
+	desirable improvements in processing speed, as access by rowid is 
+	typically the fastest way to locate or retrieve a particular 
+	row in the database—faster even than a search by primary key
+	
+	https://www.oreilly.com/library/view/oracle-plsql-programming/0596003811/ch12s03.html
+	https://www.sqliz.com/oracle-ref/urowid-datatype/
+
+EX:
+Create table department (
+dept_id 	NUMBER,
+dept_num	VARCHAR2,
+Row_id		UROWID NOT NULL
+);
+-----------------
+# DATA TYPE - COMPLEX(10) - %TYPE, %ROWTYPE 
+
+%ROWTYPE = declaring a variable and assigning data type from table.ROW to that variable (references entire ROW as data type). It automatically detects which data type assign to Variable.
+	-Only Table is mentioned as Data type 
+	ex: empRecord		employee%ROWTYPE;
+	
+	when coding, must include (variable.columnName where data type will derive from) - SELECT employee INTO empRecord.emploneeName
+
+%TYPE = declares the variable and auto-assigns data type from the table.COLUMN being referenced
+	-Table.Column is mentioned as Data Type  
+	ex: Employee.Salary - 'Salary' is NUMBER(6)from Employee table=> %TYPE will assign NUMBER(6) to a Variable 
+	
+Salary 			employee.salary%TYPE;
+myIncome		employee%ROWTYPE;
+avgSalary		Salary%TYPE;
+maxSalary		Salary%TYPE;
+empRecord		employee%ROWTYPE;
+* its taking/referencing data type from 'Salary' variable and propogating into other Variables (also allowed)
+
+SELECT employee INTO myIncome.emp_income		>rowtype
+dbms_output.put_line(myIncome.emp_income);
+
+%ROWTYPE = Similar to %TYPE(Referencing Column), instead, it referencing Entire Record/Row with Data Type (more complex) 
+	empRecord		employee%ROWTYPE;
+-----------------EX:
+# VARIABLE 
+declare
+    x_description     nyia.characteristics%rowtype;		
+    x_characteristic  nyia.characteristics%rowtype;		
+    x_name            nyia.characteristics%rowtype;
+	OR----
+	x_description     nyia.characteristics%rowtype;
+    x_characteristic  x_description%type;
+    x_name            x_description%type;
+begin
+    select description, characteristictype, name
+    into x_description.description, x_characteristic.characteristictype, x_name.name
+    from nyia.characteristics
+    where description = 'AA';
+								     <variable.column_name>
+    dbms_output.put_line('Value is '||x_description.description);
+    dbms_output.put_line('Value is '||x_characteristic.characteristictype);
+    dbms_output.put_line('Value is '||x_name.name);
+end;
+------------------------------
+# User defined subtypes:
+SUBTYPE integer IS NUMBER(38,0);
+SUBTYPE name IS CHAR(20);
+
+DECLARE 
+   SUBTYPE name IS char(20); 
+   SUBTYPE message IS varchar2(100); 
+   salutation name; 
+   greetings message; 
+BEGIN
+
+=========================================================================
+# NAMING CONVENTION:
+Variable type:
+
+c_customers = c for CURSOR 
+r_customers = record
+rec_customers = record 
+ex_invalid_id = ex for exception
+
+nSalary NUMBER(10);
+cSSN 	CHAR(10);
+vLNAME	VARCHAR2(10);
+dDOB	DATE;
+cSalary	CONSTANT NUMBER > must be equal to something or have value, otherwise throws error 
+	-cSalary	CONSTANT NUMBER := 5000;
+cnSalary CONSTANT NUMBER 
+	-lower case 'c' and upper case variable name = identify as CONSTANT
+		EX: cSalary	CONSTANT NUMBER := 5000;
+		EX: cn_Salary CONSTANT NUMBER := 2000;
+=========================================================================
+# DECLARING VARIABLE 
+# VARIABLE Syntax: DECLARING CONSTANT/DEFAULT/NOT NULL 
+Variable type:
+
+-When declaring VARIABLE with CONSTANT, and RESTRICTIONS (NOT NULL), always must set the values 
+	EX: cAge CONSTANT NUMBER NOT NULL := 25
+	EX: cAge CONSTANT NUMBER NOT NULL DEFAULT 25
+
+CONSTANT and LITERALS
+
+CONSTANT - holds value and DOES NOT change. 
+LITERALS - TRUE, 123, NULL, 'string', Date/Time Stamp - these are literals and case-sensitive
+	
+	String Literal:
+	q statement = used in string literal 
+	vMessage:= q'!The value isn't valid.!';
+	EX: q'!aint't no text here!';
+		-use that q statement to tell oracle that everything after 'q' is text 
+		- (!) is delimiter or bang
+			text goes between (!) 
+	
+[] means optional
+Variable_name [CONSTANT] <datatype> [constraint] := value
+Variable_name datatype := value
+
+EX:
+car_make CONSTANT NUMBER NOT NULL := 3.15	->if user would not provide value, system throw error 
+dbms_output.put_line(car_make)
+
+EX: nAge NUMBER(10) NOT NULL:= &input;		->if no input entered, error occur
+------------
+NUMERIC VARIABLE 
+
+empRaiseSalary	NUMBER(10);
+- IF Variable is used as NUMBER type, use it for Math
+
+# CONSTRAINT - https://docs.oracle.com/cd/B19306_01/server.102/b14200/clauses002.htm/
+NOT NULL
+CHECK
+UNIQUE
+PRIMARY KEY
+FOREIGN KEY
+CASCADE
+REF
+ROWID
+https://docs.oracle.com/javadb/10.8.3.0/ref/rrefsqlj13590.html
+
+========================================================================
+# Function (string)
+# STRING FUNCTION 
+
+greeting varchar2(10):= 'hello world';
+
+LOWER()		dbms_output.put_line(UPPER(greeting));
+NANVL()		
+NVL()
+SUBSTR()	dbms_output.put_line(SUBSTR(greeting, 7, 5));
+TRIM()		dbms_output.put_line(TRIM('ll' from greeting));
+RTRIM()		dbms_output.put_line(RTRIM(greeting, 'll'));
+RPAD()
+INITCAP()	dbms_output.put_line(INITCAP(greeting));
+INSTR()		dbms_output.put_line(INSTR(greeting, 'e'));
+etc...
+
+https://www.tutorialspoint.com/plsql/plsql_strings.htm
+
+======================================================
+# Assigning value to Variable
+
+counter binary_integer := 0; 
+OR
+greetings varchar2(20) DEFAULT 'Have a Good Day';
+	- default and (:=) are identical
+
+- default value would be NULL if no value assigned
+--------------------------
+# CONSTRAINT Declaration
+
+- it is good because it requires LESS memory
+
+sales number(10, 2); 
+name varchar2(25); 
+address varchar2(100);
+
+================================================================
+# TABLE - Single Dimensional Table (12)
+
+-Table Variable = Stores Table worth of Data. Useful to store multiple values to hold in Memory of Machine
+-google "Declaring Complex Table in pl sql"
+- Create own table that temp stored in Memory 
+- Useful when storing Arrays of Values retrieved from Database
+
+ex:
+|Empployee.SSN%TYPE| BINARY_INTEGER |
+| 12345670		   |		1		|
+| 23456789		   |		2		|
+| 09876766		   |		3		|
+| 88854443		   |		4		| 	 
+
+-Creates Variable "empNUMID", assigns Table and 
+	Column "max_phonenumbers.max_phonenumid", add %TYPE and add column "Simple_integer" 
+
+Column ONE: max_phonenumbers.max_phonenumid%type
+This is to Increment-> BINARY_INTEGER
+1) ^this is TABLE called "empNUMID" which identifies the STRUCTURE/FORMAT of table
+2) "managementList" and "workList" are VARIABLES uses that defined STRUCTURED table 
+		-its like table assigned to Variables 
+
+-Allowed to return MORE THAN 1 record 
+--------------------------------
+DECLARE
+	TYPE empNUMID
+	IS TABLE of max_phonenumbers.max_phonenumid%TYPE
+		INDEX BY BINARY_INTEGER;
+						
+	managementList empNUMID
+	workList	   empNUMID 
+
+BEGIN
+	SELECT max_phonenumid
+	INTO managementList(1)
+	FROM nyia.phonenumbers
+	WHERE max_phonenumid IS NOT NULL
+	and ROWNUM <= 1;
+	
+	SELECT max_phonenumid
+	INTO managementList(2)
+	FROM nyia.phonenumbers
+	WHERE max_phonenumid IS NOT NULL
+	AND ROWNUM<=1
+	AND max_phonenumid not in (managementList(1));
+	
+	SELECT max_contactid
+	INTO workList(1)
+	FROM nyia.phonenumbers
+	WHERE max_contactid IS NOT NULL
+	AND max_contactid not in (managementList(1), managementList(2), workList(1))
+	AND ROWNUM<=1;
+	
+	dbms_output.put_line('Management list are '||managementList(1)||' and'||managementList(2));
+	dbms_output.put_line('Work list are '||workList(1));
+end;
+=================================================================
+# RECORD (13)
+
+-google "Declaring complex Records in pl sql"
+-similar to %ROWTYPE 
+-similar to TABLE 
+- takes data types from different tables/columns and ASSIGNS to A RECORD "empRecord" which contains variables 
+			such: SSN, NAME, BONUS 
+	-also can assign your own data type 'BONUS'
+
+	TYPE empRecord								>NAME of Record  
+	is RECORD (SSN		employee.ssn%type,		>data types assigns 'empRecord'
+			   NAME		employee.fname%type,	>data types assigns 'empRecord'
+			   BONUS	NUMBER(10)				>data types assigns 'empRecord'
+				);
+	ActiveEmp	empRecord;						>assigning type 'empRecord' to Variable 'ActiveEmp'
+	
+	
+=>DIFFERENCE between TABLE and RECORD:
+TABLE=> 
+	-comes with different syntax 
+	-Table have records, managementList(1), managementList(2) and so on
+RECORD=> allows to assign multiple data types to ONE RECORD
+
+- Return ONLY 1 record 
+----------------------------------------------
+RECORD 
+
+-tutorialspoint/plsql/plsql_records.htm
+
+-A data structure that can hold data items of different kinds. Records consist of different fields, similar to row of database table 
+For Example: database (record) may hold attributes of book - title, author, subject, book id.
+Allows to organize data in structured way. 
++It can handle:
+	Table based record = %ROWTYPE
+	Cursor based record = CURSOR customer_cur IS SELECT id, name, address FROM customers;
+	User defined record =  
+	
+==================
+--Table Based--
+DECLARE 
+	c_record emp%ROWTYPE;
+BEGIN 
+	SELECT * INTO c_record
+	FROM emp
+	WHERE empno = 7839;
+	
+	dbms_output.put_line(c_record.ename);
+	dbms_output.put_line(c_record.job);
+	dbms_output.put_line(c_record.manager);
+END;
+=================
+--Cursor based--
+see link 
+	tutorialspoint/plsql/plsql_records.htm
+=================
+--User Define--
+see link 
+	tutorialspoint/plsql/plsql_records.htm
+-----------------------------------------------
+DECLARE
+	TYPE empRec
+	is RECORD (nSSN		employee.ssn%type,
+			   name		employee.fname%type,
+			   bonus	NUMBER(10)
+				);
+	
+	ActiveRec		empRec;
+	InactiveRec		empRec;
+BEGIN
+	SELECT ssn, fname, 1000
+	INTO ActiveRec 
+	FROM employee.ssn
+	WHERE ssn IS NOT NULL
+	AND salary = (SELECT max(salary) FROM employee.snn)
+	AND ROWNUM <=1;
+	
+	dbms_output.put_line('Most active emp is '||ActiveRec.name);
+	dbms_output.put_line('SSN of active emp is '||ActiveRec.nSSN);
+	dbms_output.put_line('Bonus for active emp is '||ActiveRec.bonus);
+	
+===========================================================
+DATE (19)
+
+Working with Dates
+
+dCurrentDate		DATE:= sysdate;
+dCurrentDate		employee.timestamp%type;
+
+newDate:= dCurrentDate + 100;
+
+===========================================================
+# BOOLEAN (20)
+
+declare
+    bHighPaid       BOOLEAN:= FALSE;
+    raiseSalary     NUMBER(10):= 90000;
+    vMessage        VARCHAR2(60);
+
+begin
+    bHighPaid:= (raiseSalary > 50000);		>this Evaluates to TRUE 
+    
+	IF bHighPaid THEN						>if TRUE, THEN execute 
+    vMessage:= 'statement is validated';
+    ELSE
+	vMessage:= 'Statement is FALSE';
+	
+	dbms_output.put_line(vmessage);
+    
+	END IF;
+END;
+===============================================================
+25
+
+Using Aggregate functions - SUM, COUNT, AVG, MAX, MIN ...
+will always return single row record, even if no record is found, it will return 0
+
+===============================================================
+SEQUENCE(26)
+
+-System creates UNIQUE value within a Table 
+
+DECLARE
+BEGIN
+	alter table employee
+	ADD empID	NUMBER(10)							>adding new column 'empID'
+	CONSTRAINT empPK PRIMARY KEY NOVALIDATE;		>empPK is name of Constraint - saying primary key no need to validate, leave as is
+	
+	CREATE SEQUENCE empIDSequence;					>adding name to a sequence 'empIDSequence'
+END;
+- when table is altered, time to insert values into table and add sequence 
+
+BEGIN							---BEST approach
+	for i in 1..100 loop
+	
+	insert into employee (empID, name, phone, salary)
+	values (empIDSequence.nextval, 'john doe', '202-222-3333', 3000+i);
+	end loop;
+END;
+------------SLOWER way - does not scale well - will slow system down 
+declare
+	newEmpID	employee.empID%type;
+begin
+	select empIDSequence.nextval
+	into newEmpID
+	from Dual;
+	
+	insert into Employee (empID, name, salary)
+	values (empID, 'John Doe', 3000);
+end;
+----------------FAST
+declare
+	newEmpID	employee.empID%type;
+begin
+	newEmpID:= empIDSequence.nextval;
+	
+	insert into Employee(empID, name, salary)
+	values (newEmpID, 'John Doe', 4000);
+end;
+
+================================================================
+DML - COMMIT/ROLLBACK/SAVEPOINT/SET TRANSACTION(23)
+
+
+=================================================================
+# Block within Block / Block inside Block / Variable Scope
+- Local Variable
+- Global Variable 
+
+DECLARE 
+   -- Global variables  
+   num1 number := 95;  	
+   num2 number := 85;  
+BEGIN  
+   dbms_output.put_line('Outer Variable num1: ' || num1); 
+   dbms_output.put_line('Outer Variable num2: ' || num2); 
+   DECLARE  
+      -- Local variables 
+      num1 number := 195;  
+      num2 number := 185;  
+   BEGIN  
+      dbms_output.put_line('Inner Variable num1: ' || num1); 
+      dbms_output.put_line('Inner Variable num2: ' || num2); 
+   END;  
+END; 
+Outer Variable num1: 95 
+Outer Variable num2: 85 
+Inner Variable num1: 195 
+Inner Variable num2: 185  
+=====================================
+# SELECT INTO
+# VARIABLE 
+
+Assigns Query Result into Variable
+	ex:
+	Declare
+		c_name
+		C_addr
+	BEGIN
+		SELECT name, address 
+		INTO c_name, c_addr FROM Employees
+EX:
+	SELECT description, characteristictype, name
+    INTO x_description.description, x_characteristic.characteristictype, x_name.name
+    FROM nyia.characteristics
+    WHERE description = 'AA';
+=============================================
+# IF ELSE / IF THEN statement
+
+# If - THEN Statement
+# IF - THEN - ELSE Statement
+# IF - THEN - ELSIF Statement
+
+declare
+    nSalary NUMBER(10):= 100;
+    vMessage    VARCHAR2(50);
+    
+begin
+    IF nSalary < 1000 THEN
+    vMessage:= q'!this number isn't valid!';
+    
+    dbms_output.put_line(vMessage);
+    END IF;
+end;
+    
+=========================================================================
+# CASE Statement 
+-Same as IF Statement, CASE selects ONE sequence of statements to execute
+-However, to select the sequence, the CASE statement uses a SELECTOR rather than multiple Boolean expressions. 
+-A SELECTOR is an expression, the value of which is used to select one of several alternatives.
+	ex:
+CASE Grade						=> is Selector cuz inside DB, it goes thru every row to match condition
+   WHEN 'A' THEN 'Excellent'; 
+   WHEN 'F' THEN 'Horrible'; 
+END CASE;
+
+# Searched CASE Statement
+
+- The searched CASE statement has no selector, and the WHEN clauses of the statement contain search conditions that give Boolean values
+CASE 
+   WHEN Grade = 'A' THEN dbms_output.put_line('Excellent'); 		->this is Searched Condition cuz 'grade' explicitly states what it should be 
+   WHEN Grade = 'B' THEN dbms_output.put_line('Horrible');		
+   ELSE dbms_output.put_line('Re-test');
+END CASE; 
+------------------------------------------------
+## LOOP / FOR LOOP / WHILE LOOP 
+
+-EXIT WHEN x > 50;
+-CONTINUE;							>skips condition (ex: IF a = 15 THEN CONTINUE) - skips 15
+-IF x > 50 THEN 
+	EXIT; 
+-WHILE x < 10 LOOP 
+	<code>
+-FOR a IN [REVERSE]10..20 LOOP			>'a' needs to be declared 
+	<code>
+--------------------------------
+
+- ALWAYS have END Condition, so LOOP wont be endless 
+
+- LOOPS can be labeled
+LOOP <<outer_loop>>
+LOOP <<inner_loop>>
+- LOOPS can also appear at the Exit
+END loop inner_loop;
+END loop outer_loop;
+
+LOOP
+EXIT - just exit
+EXIT WHEN - apply condition, once its TRUE, Exit
+CONTINUE  - Skips the code/number AND Continues to reiterate  
+CONTINUE WHEN - when iteration is done, loop may continue when condition is met (ex: condition to end loop, start over)
+GOTO     - provides unconditional jump using Labels. Somewhat same as CONTINUE, 
+
+Begin
+--Runs until 100 time (Fixed iteration loop) 
+FOR I in 1..100 LOOP
+<code>
+	insert into employee (SSN, Name, Salary) 
+	Values(90000000 + I, 'Doe', 3000 + I);
+END LOOP;
+EXCEPTION	
+	when others then ROLLBACK;	>if any error occur, rollback 
+								(mimics as if no insert statements were done)
+End;
+---------
+FOR I IN REVERSE 1..100 LOOP
+<code>;
+END LOOP;
+---------
+# WHILE LOOP 
+
+WHILE a < 20 LOOP
+	dbms_ouput.put_line('value of a: ' || a);
+	a:= a + 1;
+END;
+---------
+# BASIC LOOP
+
+- requires EXIT statement or EXIT WHEN statement (otherwise it will be endless loop)
+	ex:
+DECLARE
+	x int := 10;
+LOOP
+	dbms_output.put_line(x);
+	x := x + 10;
+	IF x > 50 THEN
+		exit;
+END IF;
+END LOOP;
+END;
+---------------------
+# EXIT WHEN statement
+
+DECLARE 
+   a number(2) := 10; 
+BEGIN 
+   -- while loop execution  
+   WHILE a < 20 LOOP 
+      dbms_output.put_line ('value of a: ' || a);  
+      a := a + 1; 
+      -- terminate the loop using the exit when statement 
+   EXIT WHEN a > 15; 
+   END LOOP; 
+END;
+------------------------
+# CONTINUE statement 
+
+DECLARE 
+   a number(2) := 10; 
+BEGIN 
+   -- while loop execution  
+   WHILE a < 20 LOOP 
+      dbms_output.put_line ('value of a: ' || a); 
+      a := a + 1; 
+      IF a = 15 THEN 						=> If 15 = 15 => Skip it (15)
+         -- skip the loop using the CONTINUE statement 
+         a := a + 1; 						>makes 'a' 15
+         CONTINUE; 
+      END IF; 
+   END LOOP; 
+END; 
+10, 11, 12, 13, 14, 16, 17, 18, 19, 20 (Skips 15)
+-----------------------
+# GOTO 
+
+- Similar to CONTINUE. Uses Labels to Jump
+- For CONTINUE, the condition of the while loop is reevaluated, GOTO simple continues execution from the Start label without looking at the while condition. 
+- Not recommended to USE, It messes up the Flow. Use CONTINUE instead.
+- There are restrictions using GOTO
+
+
+DECLARE 
+   a number(2) := 10; 
+BEGIN 
+   <<loopstart>> 				=> uses label
+   -- while loop execution  
+   WHILE a < 20 LOOP
+   dbms_output.put_line ('value of a: ' || a); 
+      a := a + 1; 
+      IF a = 15 THEN 			>once 'a' reaches 15, it jumps to Start of Loop 
+         a := a + 1; 
+         GOTO loopstart; 		=> Jumps to Label
+      END IF; 
+   END LOOP; 
+END; 
+==============================================================
+==============================================================
+## ARRAYS
+
+# Create Array at SCHEMA level:
+
+* CREATE OR REPLACE TYPE nameArray AS VARRAY(3) OF VARCHAR2(10);
+* TYPE namearray IS VARRAY(3) OF VARCHAR2(10);
+VARRAY(3)	-> how big the array, Number of Elements array will hold
+VARCHAR2(10) -> length of Characters in Element 
+
+ALTER TYPE  -> changes maximus size of varray
+ex: ALTER TYPE nameArray AS VARRAY(3) OF VARCHAR2(10);
+
+# Create Array at BLOCK level:
+DECLARE
+	TYPE namearray IS VARRAY(3) OF VARCHAR2(10);
+	TYPE number IS VARRAY(3) OF INTEGER;
+	name namearray 						=> put 'array' into Variable 
+	grade number 						=> put 'array' into Variable 
+	total	integer;
+BEGIN
+	name:= namearray('Kayla', 'Prima', 'Agin');
+	grade:= number(78, 90, 100); 
+	total:= students.count;
+	
+	for i in 1..total.count loop
+		dbms_output.put_line('Students '||name(i)|| ' marks:'||grade(i));
+	end loop;
+end;
+=============================================================
+## CURSOR
+
+- Ex: Syntax: https://www.tutorialspoint.com/plsql/plsql_cursors.htm
+- Cursor is a pointer to the Context Area (memory) to gain control of it.
+- It holds the Rows returned by Sql statement 
+
+# IMPLICIT Cursor - cannot be controlled by programmers. Created Automatically by Oracle when SQL statement is execute. 
+
+Syntax: sql%attribute_name
+Whenever a DML statement (INSERT, UPDATE and DELETE) is issued, an IMPLICIT CURSOR is associated with this statement. 
+For INSERT operations, the cursor holds the data that needs to be inserted. 
+For UPDATE and DELETE operations, the cursor identifies the rows that would be affected.
+
+# Attributes: (Cursor)
+%FOUND | %ISOPEN | %NOTFOUND | %ROWCOUNT | %BULK_ROWCOUNT | %BULK_EXCEPTIONS |
+	
+	ex:
+DECLARE  
+   total_rows number(2); 
+BEGIN 
+   UPDATE customers 
+   SET salary = salary + 500; 
+   
+   IF sql%notfound THEN 
+      dbms_output.put_line('no customers selected'); 
+   ELSIF sql%found THEN 
+      total_rows := sql%rowcount;
+      dbms_output.put_line( total_rows || ' customers selected '); 
+   END IF;  
+END; 
+6	because there are 6 rows affected/updated
+----------------
+# EXPLICIT Cursor - defined by programmers to gain more control over Context Area
+				- Context Area, a Memory that holds processing info needed for sql execution, Number of Rows and more.
+				- Cursor defined in DECLARATION section
+				- Cursor is created in SELECT statement which returns MORE THAN 1 ROW
+-- ONLY CURSOR Names gets assigned Attributes (not object or other Variables)(CURSORS ONLY)
+	
+	ex: CursorName%AttributeName
+Syntax: 
+	DECLARE
+	CURSOR cursorName IS SELECT_Statement;				
+
+* There are 4 Steps when working with EXPLICIT CURSOR:*
+1. Declaring for initial memory
+2. Opening for allocating memory
+3. Fetching to Retrieve data
+4. Closing to release allocated memory 
+------------------------------------------
+DECLARE
+	CURSOR c_customers IS SELECT id, name, address FROM all_customer WHERE id = 5;		=> DECLARING Cursor 
+	EmpRecord all_customer%ROWTYPE;					=> VARIABLE which will only hold 1 ROW 
+BEGIN 
+	OPEN c_customers;								=> OPENING/Data ready to be grabbed/taken
+	LOOP
+		FETCH c_customers INTO EmpRecord			=> FETCHING/CURSOR will go thru every record in 'c_customers' and insert into 'EmpRecord'
+		EXIT WHEN c_customers%NOTFOUND;				=> exit when no more rows to be inserted into 'EmpRecord'
+		dbms_output.put_line(EmpRecord.LastName || EmpRecord.Salary);
+	END LOOP;
+	CLOSE c_customers;								=> CLOSING Cursor
+END;
+
+# COMMON EXCEPTIONS in CURSOR:
+- TOO_MANY_ROWS because of FETCH cmd
+- NO_DATA_FOUND because pointer is on the last record 
+
+# Explicit CURSOR - I want to return bunch of DATA/RECORDS that matches my criteria. And then, CURSOR will sequencially go thru each ROW and perform 
+	some action. 
+	
+====================================================================
+## STORED PROCEDURE
+
+- Ex: syntax: https://www.tutorialspoint.com/plsql/plsql_procedures.htm
+- Also Called "Subprograms"
+- Used to perform an ACTION. Sometimes can return Value 
+- Can be created at Schema level | Inside package | Inside Block
+
+EXECUTE <procedureName>;|
+begin
+	<procedureName>;
+end;
+---------------- ON Block Level -------
+DECLARE 
+	PROCEDURE <name>(x IN number, y IN number, z OUT number);
+begin 
+<code>
+================================================================
+## EXCEPTION
+
+* HANDLING EXCEPTION/INTERNAL Oracle EXCEPTION
+
+Samples of EXCEPTION: https://www.tutorialspoint.com/plsql/plsql_exceptions.htm
+
+- Here, the System comes up with its own Error, and User abbreviates to simple wording (Identified at EXCEPTION phrase)
+- error handling for easy to read/understand and take action
+- WHEN others THEN 		=> keyword 'others' includes all kinds of error messages in it
+	ex:
+EXCEPTION
+	WHEN <actual error message> THEN
+		dbms_output.put_line('No Such thing exist');
+	WHEN others THEN									=> whatever error message produced, output will read 'Error!'
+		dbms_ouput.put_line('Error!');
+
+* RAISING EXCEPTION/USER DEFINED EXCEPTION
+
+- Here, you can come up and raise your own errors (raise them in middle of code)
+- exceptions are raised automatically by database servers when there is internal errors
+- exceptions can also be raised by programmers using RAISE cmd
+	ex:
+DECLARE
+	exception_name EXCEPTION;
+BEGIN
+	IF condition THEN
+		RAISE exception_name;
+	END IF;
+EXCEPTION		-> this is SINGLE Exception
+	WHEN exception_name THEN
+	statement;
+END;
+------------
+EXCEPTION		-> this is SET of Exeption
+	WHEN no_data_found OR too_many_rows THEN
+	dbms_output.put_line();
+	
+- Another way of raising exception is: DBMS_STANDARD.RAISE_APPLICATION_ERROR
+------------- COMMON EXCEPTION Errors ------------------
+* These EXCEPTIONS go along with Specific OPERATIONS:
+
+- SELECT ..INTO..
+Exception: no_data_found | too_many_rows 
+
+- using Explicit CURSORS
+Exception: Cursor_already_open | Invalid_cursor
+cursor_already_open = when cursor already open, and you trying to open once more
+--------------------
+* Creating BRAND NEW EXCEPTION 
+
+declare
+	not_null_constraint EXCEPTION;
+	PRAGMA EXCEPTION_INIT(not_null_constraint, -1407);
+begin
+--------------------
+* SQLCODE and SQLERRM
+
+SQLCODE - returns exception code
+SQLERRM - returns error message
+	ex:
+BEGIN
+	update employees
+	set lname = NULL;
+EXCEPTION 
+	when others then
+	dbms_output.put_line('Error code: '||SQLCODE);
+	dbms_output.put_line('Error Message: '|| SQLERRM);
+END;
+reads: 
+Error code: -1407
+Error message: ORA-01407; cannot update ("student1"."employee"."lname") to NULL
+===============================================================
+=================================================================
+## STORED PROCEDURES
+
+- Stores Query in Schema/Database
+- Packaged => allows to Create Multiple STORED PROCEDURE & FUNCTIONS, and package them into one Code 
+
+
+
+
+
+
+
+
+
+* Advantages of Stored program unit: (stored procedure, triggers, functions, packages)
+- Call the program with only Parameters needed (Performance is Maximized) 
+=================================================================
+## FUNCTIONS
+
+- Purpose is to RETURN a Value (return something back, maybe performing calculation and need value returned)
+
+- Ex: Syntax: https://www.tutorialspoint.com/plsql/plsql_functions.htm
+- Used to RETURN single VALUE, mainly for COMPUTE/CALCULATE and RETURN VALUE 
+- Same syntax as PROCEDURE, just also must include RETURN keyword
+
+DECLARE  
+	FUNCTION findMax(x IN number, y IN number)
+	RETURN number 
+	AS
+	z;
+BEGIN 
+
+
+
+
+
+==================================================================
+## TRIGGERS
+
+- Triggers are also stored in Schema/Database. They are triggered by Event happening in your sql code.
+- Some action must be done to TRIGGER the Unit which has code written in it. 
+- Fires when DML (Update, INSERT, or Delete) cmd is issued 
+
+--- System TRIGGER
+- Fires when some Database system event occurs(EX: error, user login/logout) 
+
+
+
+
+
+
+
+
+
+
+
+
+
