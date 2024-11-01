@@ -664,6 +664,7 @@ SEQUENCE (52)
 -keeps tracks of numeric sequence for Primary Key column 
 -generates new values if INSERT is needed BUT Primary Key must be unique 
 
+-Create a Sequence or NextVal:
 CREATE SEQUENCE product_seq
 MINVALUE 1									>assigning minimum/maximum value that sequence can have
 MAXVALUE 100								>by default its bunch of 9999999999 (if left empty)
@@ -1399,6 +1400,9 @@ WHERE table_schema = 'public';
 SELECT column_name, data_type
 FROM information_schema.columns 
 WHERE table_name = '' and table__schema = 'public';
+
+-Query all Views:
+SELECT * from information_schema.views;
 --------------------
 
 -Alter table - Data Type - Restriction - Not null 
