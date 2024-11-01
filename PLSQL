@@ -31,6 +31,12 @@ empRecord		employee%ROWTYPE;
 bHighPaid       BOOLEAN:= FALSE;
 raiseSalary     NUMBER(10):= 90000;
 vMessage        VARCHAR2(60):= 'value is validated';
+======================================================
+Basic 
+https://www.tutorialspoint.com/plsql/plsql_basic_syntax.htm
+
+Operation 
+https://www.tutorialspoint.com/plsql/plsql_operators.htm
 
 ==================================================================
 https://www.oracletutorial.com/plsql-tutorial/plsql-anonymous-block/ - PL/SQL oracle tutorial 
@@ -121,7 +127,7 @@ Unsign = only positive number
 
 VARCHAR2(50) 
 NUMBER(2, 5)	NUMBER(10)
-INTEGER
+INTEGER			
 INT or INT(range 1-38)
 DATE
 BOOLEAN
@@ -223,6 +229,8 @@ begin
 end;
 ------------------------------
 # User defined subtypes:
+-subtype is in Data Types section
+
 SUBTYPE integer IS NUMBER(38,0);
 SUBTYPE name IS CHAR(20);
 
@@ -398,6 +406,11 @@ end;
 =================================================================
 # RECORD (13)
 
+-Record can hold data of different kind
+	-can hold data on Table-based
+	-can hold data on Cursor-level 
+	-can hold data on User-defined-level 
+	
 -google "Declaring complex Records in pl sql"
 -similar to %ROWTYPE 
 -similar to TABLE 
@@ -435,6 +448,8 @@ Allows to organize data in structured way.
 	
 ==================
 --Table Based--
+-%ROWTYPE attribute creates TABLE-BASED and CURSOR-based records 
+
 DECLARE 
 	c_record emp%ROWTYPE;
 BEGIN 
@@ -450,10 +465,44 @@ END;
 --Cursor based--
 see link 
 	tutorialspoint/plsql/plsql_records.htm
+	
+Declare 
+	CURSOR cur_customer IS
+	SELECT id, name, address
+	FROM customers;
+	
+	customer_rec cur_customer%ROWTYPE;
+Begin 
+	open cur_customer;
+	LOOP 
+		FETCH cur_customer INTO customer_rec 
+		EXIT WHEN cur_customer%NOTFOUND;
+		dbms_output.put_line(customer_rec.id||' '||customer_rec.name);
+	END LOOP;
+end;
+	
 =================
 --User Define--
 see link 
 	tutorialspoint/plsql/plsql_records.htm
+	
+Declare 
+	TYPE books IS RECORD
+	(title varchar2(50),
+	author varchar2(50),
+	subject varchar2(100),
+	book_id number);
+
+	book1 books;
+	book2 books;
+begin
+	--book 1--
+	book1.title:= 'C Programming';
+	book1.author:= 'Nuha ally';
+	book1.subject:= 'about tutorial';
+	book1.book_id:= 456123
+	
+	
 -----------------------------------------------
 DECLARE
 	TYPE empRec
@@ -764,7 +813,9 @@ END;
 ==============================================================
 ## ARRAYS
 
-# Create Array at SCHEMA level:
+Index starts for varrays is always 1
+A varray is automatically NULL when it is declared and must be initialized before its elements can be referenced.
+Elements of a varray could also be a %ROWTYPE of any database table or %TYPE of any database table field.
 
 * CREATE OR REPLACE TYPE nameArray AS VARRAY(3) OF VARCHAR2(10);
 * TYPE namearray IS VARRAY(3) OF VARCHAR2(10);
@@ -778,15 +829,16 @@ ex: ALTER TYPE nameArray AS VARRAY(3) OF VARCHAR2(10);
 DECLARE
 	TYPE namearray IS VARRAY(3) OF VARCHAR2(10);
 	TYPE number IS VARRAY(3) OF INTEGER;
-	name namearray 						=> put 'array' into Variable 
-	grade number 						=> put 'array' into Variable 
+	name namearray; 						=> put 'array' into Variable 
+	grade number;   						=> put 'array' into Variable 
 	total	integer;
 BEGIN
 	name:= namearray('Kayla', 'Prima', 'Agin');
 	grade:= number(78, 90, 100); 
-	total:= students.count;
+	total:= name.count;										>to print count of names (students)
+		dbms_output.put_line('Total '||total||' Students');
 	
-	for i in 1..total.count loop
+	for i in 1..name.count loop
 		dbms_output.put_line('Students '||name(i)|| ' marks:'||grade(i));
 	end loop;
 end;
@@ -800,6 +852,7 @@ end;
 # IMPLICIT Cursor - cannot be controlled by programmers. Created Automatically by Oracle when SQL statement is execute. 
 
 Syntax: sql%attribute_name
+
 Whenever a DML statement (INSERT, UPDATE and DELETE) is issued, an IMPLICIT CURSOR is associated with this statement. 
 For INSERT operations, the cursor holds the data that needs to be inserted. 
 For UPDATE and DELETE operations, the cursor identifies the rows that would be affected.
@@ -807,7 +860,7 @@ For UPDATE and DELETE operations, the cursor identifies the rows that would be a
 # Attributes: (Cursor)
 %FOUND | %ISOPEN | %NOTFOUND | %ROWCOUNT | %BULK_ROWCOUNT | %BULK_EXCEPTIONS |
 	
-	ex:
+ex:
 DECLARE  
    total_rows number(2); 
 BEGIN 
@@ -840,19 +893,22 @@ Syntax:
 3. Fetching to Retrieve data
 4. Closing to release allocated memory 
 ------------------------------------------
+CURSOR:
+
 DECLARE
-	CURSOR c_customers IS SELECT id, name, address FROM all_customer WHERE id = 5;		=> DECLARING Cursor 
-	EmpRecord all_customer%ROWTYPE;					=> VARIABLE which will only hold 1 ROW 
+	CURSOR c_customers IS SELECT id, name, address FROM all_customer [WHERE] id = 5;		=> DECLARING Cursor 
+	EmpRecord all_customer.name%TYPE;					=> VARIABLE which will only hold 1 ROW 
 BEGIN 
 	OPEN c_customers;								=> OPENING/Data ready to be grabbed/taken
 	LOOP
-		FETCH c_customers INTO EmpRecord			=> FETCHING/CURSOR will go thru every record in 'c_customers' and insert into 'EmpRecord'
+		FETCH c_customers INTO EmpRecord;			=> FETCHING/CURSOR will go thru every record in 'c_customers' and insert into 'EmpRecord'
 		EXIT WHEN c_customers%NOTFOUND;				=> exit when no more rows to be inserted into 'EmpRecord'
 		dbms_output.put_line(EmpRecord.LastName || EmpRecord.Salary);
 	END LOOP;
 	CLOSE c_customers;								=> CLOSING Cursor
 END;
 
+-see 'cursor' in tutorialpoint
 # COMMON EXCEPTIONS in CURSOR:
 - TOO_MANY_ROWS because of FETCH cmd
 - NO_DATA_FOUND because pointer is on the last record 
@@ -863,24 +919,54 @@ END;
 ====================================================================
 ## STORED PROCEDURE
 
+-more popular for INSERT, UPDATE, DELETE statements. 
+-best used when writing complex queries over and over - great for storing complex queries 
+-best used when re-using code/query over and over 
+-enhances performance 
+-syntax same with MySQL
+
+-youtube: Oracle PL/SQL Stored Procedures and Functions 
 - Ex: syntax: https://www.tutorialspoint.com/plsql/plsql_procedures.htm
 - Also Called "Subprograms"
 - Used to perform an ACTION. Sometimes can return Value 
 - Can be created at Schema level | Inside package | Inside Block
 
-EXECUTE <procedureName>;|
-begin
-	<procedureName>;
-end;
+Function 		 - returns single value, mainly used to compute/calculate and return value.
+Stored procedure - does NOT return value, mainly used to perform action.
+
 ---------------- ON Block Level -------
 DECLARE 
 	PROCEDURE <name>(x IN number, y IN number, z OUT number);
 begin 
 <code>
+----------------------------------------
+CREATE PROCEDURE sp_ADD
+(a IN integer, 
+ b IN integer,
+ c OUT integer)
+AS
+BEGIN
+	c:= (a + b);
+	dbms_output.put_line('output is '||c);
+END;
+
+CALL sp_ADD(15, 5, :c);		>need third argument since 3 arguments created (in, in, out)
+or
+
+BEGIN
+	sp_ADD(5, 5, :c);
+END;
+----------------------------------------------
+
+
 ================================================================
 ## EXCEPTION
 
 * HANDLING EXCEPTION/INTERNAL Oracle EXCEPTION
+-ex:
+	if invoice_total < 0 then			>if invoice_total is zero or less, then error is raised.
+	RAISE VALUE ERROR
+	end if;
 
 Samples of EXCEPTION: https://www.tutorialspoint.com/plsql/plsql_exceptions.htm
 
@@ -970,22 +1056,125 @@ Error message: ORA-01407; cannot update ("student1"."employee"."lname") to NULL
 ## FUNCTIONS
 
 - Purpose is to RETURN a Value (return something back, maybe performing calculation and need value returned)
+-ex: SELECT sysdate FROM dual;		>'sysdate' is function which returns value. Similar to SUM, AVG, exc; are functions that returns value 
+
+IN - value passed from outside (Optional)
+OUT - value used in Return value (Optional)
+RETURN - must have data type that will return value 
+
+-Optional parameters contains Name, Mode, Type 
+-Function must have RETURN statement 
 
 - Ex: Syntax: https://www.tutorialspoint.com/plsql/plsql_functions.htm
 - Used to RETURN single VALUE, mainly for COMPUTE/CALCULATE and RETURN VALUE 
 - Same syntax as PROCEDURE, just also must include RETURN keyword
-
-DECLARE  
-	FUNCTION findMax(x IN number, y IN number)
-	RETURN number 
+ex:
+	CREATE [OR REPlACE] FUNCTION <functionName>
+	[(input IN varchar2, output OUT integer)] - optional parameters
+	RETURN <datatype>
 	AS
-	z;
+	BEGIN
+		<code>
+------------------
+DECLARE  
+	CREATE OR REPLACE FUNCTION totalCustomers
+	RETURN number IS
+		total number(2):= 0;
 BEGIN 
+	Select count(*) INTO total 
+	FROM customers;
+	
+	RETURN total;
+END;
+-------------------
+declare 
+    a integer;
+    b integer;
+    c integer;
+function findMax
+(x IN integer, 
+y IN number)
+RETURN number
+IS
+    z integer;
+begin
+    if x > y then 
+    z:= x;
+    else 
+    z:= y;
+    end if;
+    return z;
+end;
+begin
+    a:= 23;
+    b:= 40;
+    c:= findMax(a, b);
+    dbms_output.put_line('Maximus of (23, 40): '||c);
+end;
+-----------------
+declare 
+    a integer;
+    b integer;
+function findMax
+(x in integer, 
+y in integer)
+RETURN integer
+AS
+begin
+    if x > y then 
+    return x;
+    else 
+    return y;
+    end if;
+end;
 
+begin
+    a:= 10;
+    b:= 15;
+    dbms_output.put_line('function '||findMax(a, b));
+end;
+---------------------------
+Calling Function:
 
+Select <functionName>(<arguments>)
+from dual;
+=======------------------
+ex: 
+CREATE OR REPLACE FUNCTION job_desc
+(
+	--user INPUT
+	input_job_id	number 
+)
+RETURN VARCHAR2						>no need ; & no need char length 
+AS
+	--parameters (variables)
+	var_job_description	VARCHAR2(55);
+BEGIN
+	SELECT job_desc into var_job_description
+	from jobs
+	where job_id = input_job_id;
 
+	RETURN var_job_description;
+END;
+------
+SELECT job_desc(2) from dual;		>returns ex: Software Engineer
+--------------------------------------------------
+FUNCTION where NO input is needed.
 
+CREATE OR REPLACE FUNCTION fav_num
+RETURN number
+AS
+	my_fav_num	number;
+BEGIN
+	SELECT 43 INTO my_fav_num 
+	FROM dual;
+	
+	RETURN my_fav_num;
+END;
 
+Select fav_num() as 'My Favorite Number' from dual;			>returns 43
+			  ^ function without () will also work 
+			
 ==================================================================
 ## TRIGGERS
 
